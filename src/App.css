@@ -1,0 +1,913 @@
+/* ============================================
+   RESET
+   ============================================ */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f5f5f7;
+  color: #1d1d1f;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============================================
+   LAYOUT PRINCIPAL
+   ============================================ */
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  background: white;
+  padding: 20px 40px;
+  border-bottom: 1px solid #e5e5e7;
+}
+
+.app-header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.app-header p {
+  font-size: 14px;
+  color: #6e6e73;
+}
+
+.app-main {
+  flex: 1;
+  padding: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ============================================
+   FORMULÁRIO
+   ============================================ */
+
+.cv-form {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+/* NAVEGAÇÃO ENTRE SECÇÕES */
+.steps-nav {
+  display: flex;
+  overflow-x: auto;
+  border-bottom: 2px solid #f0f0f2;
+  background: #fafafa;
+}
+
+.step-btn {
+  flex: 1;
+  padding: 16px 12px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  transition: all 0.2s;
+  border-bottom: 3px solid transparent;
+  font-family: inherit;
+  white-space: nowrap;
+  min-width: 100px;
+}
+
+.step-btn:hover {
+  background: #f0f0f2;
+  color: #1d1d1f;
+}
+
+.step-btn.active {
+  color: #0071e3;
+  border-bottom-color: #0071e3;
+  background: white;
+}
+
+/* CONTEÚDO DA SECÇÃO */
+.step-content {
+  padding: 32px;
+}
+
+.section h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #1d1d1f;
+}
+
+.section-description {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+/* GRID DE CAMPOS */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.form-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.form-field label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1d1d1f;
+}
+
+.form-field input[type='text'],
+.form-field input[type='email'],
+.form-field input[type='tel'],
+.form-field input[type='url'],
+.form-field input[type='month'],
+.form-field textarea,
+.form-field select {
+  padding: 10px 12px;
+  border: 1px solid #d2d2d7;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  background: white;
+}
+
+.form-field input:focus,
+.form-field textarea:focus,
+.form-field select:focus {
+  outline: none;
+  border-color: #0071e3;
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+}
+
+.form-field textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.char-counter {
+  font-size: 11px;
+  color: #999;
+  text-align: right;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #666;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.checkbox-label input {
+  cursor: pointer;
+}
+
+/* ============================================
+   CARDS DINÂMICOS (Experiência/Educação)
+   ============================================ */
+
+.dynamic-card {
+  background: #fafafa;
+  border: 1px solid #e5e5e7;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e5e5e7;
+}
+
+.card-header h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1d1d1f;
+}
+
+.card-remove {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.card-remove:hover {
+  background: #ffebee;
+}
+
+.empty-state {
+  padding: 40px 20px;
+  text-align: center;
+  color: #999;
+  background: #fafafa;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.btn-add {
+  width: 100%;
+  padding: 14px;
+  border: 2px dashed #d2d2d7;
+  background: white;
+  color: #0071e3;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  margin-top: 8px;
+}
+
+.btn-add:hover {
+  border-color: #0071e3;
+  background: #f0f7ff;
+}
+
+/* ============================================
+   HABILIDADES
+   ============================================ */
+
+.skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.skill-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  background: #fafafa;
+  border-radius: 10px;
+  border: 1px solid #e5e5e7;
+}
+
+.skill-name-input {
+  padding: 8px 10px;
+  border: 1px solid #d2d2d7;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  background: white;
+}
+
+.skill-name-input:focus {
+  outline: none;
+  border-color: #0071e3;
+}
+
+.skill-level {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.skill-range {
+  width: 100px;
+  cursor: pointer;
+  accent-color: #0071e3;
+}
+
+.skill-level-label {
+  font-size: 12px;
+  color: #666;
+  font-weight: 600;
+  min-width: 30px;
+}
+
+.skill-remove,
+.language-remove {
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: #ffebee;
+  color: #e53935;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.skill-remove:hover,
+.language-remove:hover {
+  background: #ffcdd2;
+}
+
+/* ============================================
+   IDIOMAS
+   ============================================ */
+
+.language-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  background: #fafafa;
+  border-radius: 10px;
+  border: 1px solid #e5e5e7;
+  margin-bottom: 8px;
+}
+
+.language-name-input {
+  padding: 8px 10px;
+  border: 1px solid #d2d2d7;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  background: white;
+}
+
+.language-name-input:focus {
+  outline: none;
+  border-color: #0071e3;
+}
+
+.language-level-select {
+  padding: 8px 10px;
+  border: 1px solid #d2d2d7;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  background: white;
+  cursor: pointer;
+}
+
+.language-level-select:focus {
+  outline: none;
+  border-color: #0071e3;
+}
+
+/* ============================================
+   FOTO DE PERFIL
+   ============================================ */
+
+.photo-upload-cv {
+  margin-top: 4px;
+}
+
+.photo-input-cv {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  border: 2px dashed #d2d2d7;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: #fafafa;
+}
+
+.photo-input-cv:hover {
+  border-color: #0071e3;
+  background: #f0f7ff;
+}
+
+.photo-btn-cv {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0071e3;
+}
+
+.photo-input-cv small {
+  font-size: 11px;
+  color: #888;
+}
+
+.photo-preview-cv {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #fafafa;
+  border-radius: 12px;
+}
+
+.photo-preview-cv img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.photo-remove-cv {
+  padding: 8px 16px;
+  border: none;
+  background: #ff5252;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.photo-remove-cv:hover {
+  background: #e53935;
+}
+
+/* ============================================
+   NAVEGAÇÃO
+   ============================================ */
+
+.step-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 32px;
+  border-top: 1px solid #f0f0f2;
+  background: #fafafa;
+}
+
+.btn-nav {
+  padding: 10px 20px;
+  border: 1px solid #d2d2d7;
+  background: white;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  color: #1d1d1f;
+}
+
+.btn-nav:hover:not(:disabled) {
+  border-color: #0071e3;
+  color: #0071e3;
+}
+
+.btn-nav:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.step-indicator {
+  font-size: 13px;
+  color: #666;
+  font-weight: 600;
+}
+
+/* ============================================
+   RESPONSIVO
+   ============================================ */
+
+@media (max-width: 768px) {
+  .app-main {
+    padding: 12px;
+  }
+
+  .step-content {
+    padding: 20px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .skill-item,
+  .language-item {
+    grid-template-columns: 1fr;
+  }
+
+  .step-btn {
+    font-size: 11px;
+    padding: 12px 8px;
+    min-width: 80px;
+  }
+}
+
+/* ============================================
+   LAYOUT COM PREVIEW
+   ============================================ */
+
+.app-main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+  height: calc(100vh - 100px);
+  padding: 0;
+  max-width: none;
+}
+
+.app-sidebar {
+  background: white;
+  overflow-y: auto;
+  border-right: 1px solid #e5e5e7;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-preview {
+  background: #e5e5e7;
+  overflow: auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* ============================================
+   PREVIEW DO CV
+   ============================================ */
+
+.cv-preview-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.cv-preview-scaler {
+  width: 794px; /* A4 a 96 DPI */
+  height: 1123px;
+  transform: scale(0.6);
+  transform-origin: top center;
+}
+
+.cv-preview-canvas {
+  width: 794px;
+  height: 1123px;
+  background: white;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* ============================================
+   TEMPLATE MODERNO
+   ============================================ */
+
+.cv-template {
+  width: 794px;
+  height: 1123px;
+  background: white;
+  font-family: 'Inter', sans-serif;
+  color: #1a1a1f;
+  position: relative;
+  overflow: hidden;
+}
+
+.cv-header {
+  background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+  color: white;
+  padding: 32px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+}
+
+.cv-header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+}
+
+.cv-photo {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid white;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.cv-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cv-header-info {
+  flex: 1;
+}
+
+.cv-name {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  line-height: 1.1;
+}
+
+.cv-job-title {
+  font-size: 14px;
+  font-weight: 400;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.cv-header-contacts {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 11px;
+  text-align: right;
+  flex-shrink: 0;
+  max-width: 260px;
+}
+
+.cv-contact-item {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  opacity: 0.95;
+  word-break: break-word;
+}
+
+.cv-contact-item span {
+  font-weight: 700;
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.cv-body {
+  display: grid;
+  grid-template-columns: 1.7fr 1fr;
+  gap: 24px;
+  padding: 24px 40px;
+}
+
+.cv-col-left,
+.cv-col-right {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cv-section {
+  margin-bottom: 4px;
+}
+
+.cv-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #2c5282;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin: 0 0 12px 0;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #2c5282;
+}
+
+.cv-summary {
+  padding: 20px 40px 0;
+}
+
+.cv-summary p {
+  font-size: 11px;
+  line-height: 1.6;
+  color: #4a4a4f;
+  font-style: italic;
+  margin: 0;
+}
+
+.cv-item {
+  margin-bottom: 16px;
+}
+
+.cv-item:last-child {
+  margin-bottom: 0;
+}
+
+.cv-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.cv-item-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1a1a1f;
+  margin: 0 0 2px 0;
+}
+
+.cv-item-subtitle {
+  font-size: 10px;
+  color: #666;
+  font-style: italic;
+}
+
+.cv-item-date {
+  font-size: 9px;
+  color: #666;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.cv-item-description {
+  font-size: 10px;
+  line-height: 1.5;
+  color: #4a4a4f;
+  margin: 4px 0 0 0;
+  white-space: pre-line;
+}
+
+.cv-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.cv-tag {
+  font-size: 9px;
+  padding: 3px 8px;
+  background: #e8f0f8;
+  color: #2c5282;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.cv-skills {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cv-skill-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.cv-skill-level {
+  color: #2c5282;
+}
+
+.cv-skill-bar {
+  height: 6px;
+  background: #e5e5e7;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.cv-skill-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2c5282, #4a90d9);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.cv-languages {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cv-language {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  padding: 4px 0;
+}
+
+.cv-language-name {
+  font-weight: 600;
+}
+
+.cv-language-level {
+  font-size: 9px;
+  color: #666;
+  font-style: italic;
+}
+
+.cv-certification {
+  margin-bottom: 10px;
+}
+
+.cv-cert-name {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.cv-cert-issuer {
+  font-size: 9px;
+  color: #666;
+  font-style: italic;
+}
+
+.cv-cert-date {
+  font-size: 9px;
+  color: #999;
+}
+
+/* ============================================
+   BOTÃO DE DOWNLOAD PDF
+   ============================================ */
+
+.download-buttons {
+  padding: 20px 24px;
+  background: white;
+  border-top: 1px solid #f0f0f2;
+  margin-top: auto;
+}
+
+.btn-download {
+  width: 100%;
+  padding: 16px 20px;
+  border: none;
+  background: linear-gradient(135deg, #0071e3 0%, #0077ed 100%);
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  box-shadow: 0 4px 14px rgba(0, 113, 227, 0.3);
+}
+
+.btn-download:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 113, 227, 0.4);
+}
+
+.btn-download:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ============================================
+   RESPONSIVO
+   ============================================ */
+
+@media (max-width: 1024px) {
+  .app-main {
+    grid-template-columns: 1fr;
+    height: auto;
+    overflow: auto;
+  }
+
+  .app-sidebar {
+    border-right: none;
+    border-bottom: 1px solid #e5e5e7;
+  }
+
+  .cv-preview-scaler {
+    transform: scale(0.5);
+  }
+}
+
+@media (max-width: 768px) {
+  .cv-preview-scaler {
+    transform: scale(0.4);
+  }
+}
