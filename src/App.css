@@ -552,6 +552,15 @@ body {
   align-items: flex-start;
   justify-content: center;
   padding: 24px;
+  padding-top: 24px;
+}
+
+.cv-preview-scaler {
+  width: 794px;
+  height: 1123px;
+  transform: scale(0.55);
+  transform-origin: top center;
+  margin-top: -40px;
 }
 
 /* ============================================
@@ -909,5 +918,108 @@ body {
 @media (max-width: 768px) {
   .cv-preview-scaler {
     transform: scale(0.4);
+  }
+}
+
+/* ============================================
+   TECNOLOGIAS (Projetos)
+   ============================================ */
+
+.tech-input-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.tech-input-row input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #d2d2d7;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  background: white;
+}
+
+.tech-input-row input:focus {
+  outline: none;
+  border-color: #0071e3;
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
+}
+
+.btn-tech-add {
+  padding: 10px 16px;
+  border: none;
+  background: #0071e3;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.btn-tech-add:hover {
+  background: #005bb5;
+  transform: translateY(-1px);
+}
+
+.tech-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.tech-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  background: #e8f0f8;
+  color: #2c5282;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tech-tag-remove {
+  background: transparent;
+  border: none;
+  color: #2c5282;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 0 2px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.tech-tag-remove:hover {
+  opacity: 1;
+  color: #e53935;
+}
+
+/* ============================================
+   AJUSTE DAS ABAS (7 agora)
+   ============================================ */
+
+.steps-nav {
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.step-btn {
+  min-width: 90px;
+  font-size: 12px;
+  padding: 14px 8px;
+}
+
+@media (max-width: 1024px) {
+  .step-btn {
+    min-width: 80px;
+    font-size: 11px;
+    padding: 12px 6px;
   }
 }

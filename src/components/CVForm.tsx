@@ -4,6 +4,8 @@ import { ExperienceSection } from './sections/ExperienceSection';
 import { EducationSection } from './sections/EducationSection';
 import { SkillsSection } from './sections/SkillsSection';
 import { LanguagesSection } from './sections/LanguagesSection';
+import { CertificationsSection } from './sections/CertificationsSection';
+import { ProjectsSection } from './sections/ProjectsSection';
 
 export function CVForm() {
   const { step, setStep } = useCVStore();
@@ -14,6 +16,8 @@ export function CVForm() {
     { id: 3, label: '🎓 Educação', component: EducationSection },
     { id: 4, label: '⚡ Habilidades', component: SkillsSection },
     { id: 5, label: '🌍 Idiomas', component: LanguagesSection },
+    { id: 6, label: '🏆 Certificações', component: CertificationsSection },
+    { id: 7, label: '🚀 Projetos', component: ProjectsSection },
   ];
 
   const CurrentSection = sections[step - 1]?.component || PersonalSection;
