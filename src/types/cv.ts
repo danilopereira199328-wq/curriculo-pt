@@ -10,6 +10,12 @@ export interface CVData {
     github?: string;
     photo?: string;
     summary: string;
+    objective: string;
+    availability: 'Imediata' | '2 semanas' | '1 mês' | 'Outro' | '';
+    availabilityOther: string;
+    hasDrivingLicense: boolean;
+    drivingLicenseCategory: string;
+    hasCar: boolean;
   };
 
   experience: Array<{
@@ -59,6 +65,11 @@ export interface CVData {
     link?: string;
     technologies: string[];
   }>;
+
+  hobbies: Array<{
+    id: string;
+    name: string;
+  }>;
 }
 
 export type TemplateType = 'modern';
@@ -70,4 +81,5 @@ export type SectionType =
   | 'skills'
   | 'languages'
   | 'certifications'
-  | 'projects';
+  | 'projects'
+  | 'hobbies';

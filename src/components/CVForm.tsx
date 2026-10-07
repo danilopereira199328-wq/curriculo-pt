@@ -6,6 +6,7 @@ import { SkillsSection } from './sections/SkillsSection';
 import { LanguagesSection } from './sections/LanguagesSection';
 import { CertificationsSection } from './sections/CertificationsSection';
 import { ProjectsSection } from './sections/ProjectsSection';
+import { HobbiesSection } from './sections/HobbiesSection';
 
 export function CVForm() {
   const { step, setStep } = useCVStore();
@@ -18,13 +19,13 @@ export function CVForm() {
     { id: 5, label: '🌍 Idiomas', component: LanguagesSection },
     { id: 6, label: '🏆 Certificações', component: CertificationsSection },
     { id: 7, label: '🚀 Projetos', component: ProjectsSection },
+    { id: 8, label: '🎨 Hobbies', component: HobbiesSection },
   ];
 
   const CurrentSection = sections[step - 1]?.component || PersonalSection;
 
   return (
     <div className="cv-form">
-      {/* ABAS DE NAVEGAÇÃO */}
       <div className="steps-nav">
         {sections.map((sec) => (
           <button
@@ -38,12 +39,10 @@ export function CVForm() {
         ))}
       </div>
 
-      {/* CONTEÚDO DA SECÇÃO ATIVA */}
       <div className="step-content">
         <CurrentSection />
       </div>
 
-      {/* NAVEGAÇÃO ANTERIOR/PRÓXIMO */}
       <div className="step-navigation">
         <button
           type="button"

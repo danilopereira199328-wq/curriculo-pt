@@ -5,7 +5,7 @@ interface Props {
 }
 
 export function Modern01({ data }: Props) {
-  const { personal, experience, education, skills, languages, certifications, projects } = data;
+  const { personal, experience, education, skills, languages, certifications, projects, hobbies } = data;
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return '';
@@ -67,6 +67,14 @@ export function Modern01({ data }: Props) {
         </div>
       </header>
 
+      {/* OBJETIVO */}
+      {personal.objective && (
+        <section className="cv-section cv-objective">
+          <h3 className="cv-section-title">🎯 Objetivo</h3>
+          <p>{personal.objective}</p>
+        </section>
+      )}
+
       {/* RESUMO */}
       {personal.summary && (
         <section className="cv-section cv-summary">
@@ -79,7 +87,6 @@ export function Modern01({ data }: Props) {
       <div className="cv-body">
         {/* COLUNA ESQUERDA */}
         <div className="cv-col-left">
-          {/* EXPERIÊNCIA */}
           {experience.length > 0 && (
             <section className="cv-section">
               <h3 className="cv-section-title">💼 Experiência</h3>
@@ -106,7 +113,6 @@ export function Modern01({ data }: Props) {
             </section>
           )}
 
-          {/* EDUCAÇÃO */}
           {education.length > 0 && (
             <section className="cv-section">
               <h3 className="cv-section-title">🎓 Educação</h3>
@@ -130,7 +136,6 @@ export function Modern01({ data }: Props) {
             </section>
           )}
 
-          {/* PROJETOS */}
           {projects.length > 0 && (
             <section className="cv-section">
               <h3 className="cv-section-title">🚀 Projetos</h3>
@@ -155,7 +160,6 @@ export function Modern01({ data }: Props) {
 
         {/* COLUNA DIREITA */}
         <div className="cv-col-right">
-          {/* HABILIDADES */}
           {skills.length > 0 && (
             <section className="cv-section">
               <h3 className="cv-section-title">⚡ Habilidades</h3>
@@ -178,7 +182,6 @@ export function Modern01({ data }: Props) {
             </section>
           )}
 
-          {/* IDIOMAS */}
           {languages.length > 0 && (
             <section className="cv-section">
               <h3 className="cv-section-title">🌍 Idiomas</h3>
@@ -193,7 +196,33 @@ export function Modern01({ data }: Props) {
             </section>
           )}
 
-          {/* CERTIFICAÇÕES */}
+          {/* INFORMAÇÕES (Disponibilidade + Mobilidade) */}
+          {(personal.availability || personal.hasDrivingLicense || personal.hasCar) && (
+            <section className="cv-section">
+              <h3 className="cv-section-title">📅 Informações</h3>
+
+              {personal.availability && (
+                <div className="cv-info-item">
+                  <strong>Disponibilidade:</strong>{' '}
+                  {personal.availability === 'Outro'
+                    ? personal.availabilityOther
+                    : personal.availability}
+                </div>
+              )}
+
+              {personal.hasDrivingLicense && (
+                <div className="cv-info-item">
+                  ✓ Carta de condução
+                  {personal.drivingLicenseCategory && ` (Categoria ${personal.drivingLicenseCategory})`}
+                </div>
+              )}
+
+              {personal.hasCar && (
+                <div className="cv-info-item">✓ Carro próprio</div>
+              )}
+            </section>
+          )}
+
           {certifications.length > 0 && (
             <section className="cv-section">
               <h3 className="cv-section-title">🏆 Certificações</h3>
@@ -206,6 +235,21 @@ export function Modern01({ data }: Props) {
                   )}
                 </div>
               ))}
+            </section>
+          )}
+
+          {hobbies.length > 0 && hobbies.some((h) => h.name.trim()) && (
+            <section className="cv-section">
+              <h3 className="cv-section-title">🎨 Hobbies</h3>
+              <div className="cv-hobbies">
+                {hobbies
+                  .filter((h) => h.name.trim())
+                  .map((hobby) => (
+                    <span key={hobby.id} className="cv-hobby-tag">
+                      {hobby.name}
+                    </span>
+                  ))}
+              </div>
             </section>
           )}
         </div>

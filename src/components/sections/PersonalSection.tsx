@@ -103,19 +103,120 @@ export function PersonalSection() {
         </div>
       </div>
 
-      {/* RESUMO PROFISSIONAL */}
+      {/* OBJETIVO */}
+      <div className="form-field full-width">
+        <label>🎯 Objetivo Profissional</label>
+        <textarea
+          value={personal.objective}
+          onChange={(e) => updatePersonal('objective', e.target.value)}
+          placeholder="Ex: Procuro posição como Desenvolvedor Front-End Júnior em Lisboa..."
+          rows={3}
+          maxLength={300}
+        />
+        <small className="char-counter">
+          {personal.objective.length}/300 caracteres
+        </small>
+      </div>
+
+      {/* RESUMO */}
       <div className="form-field full-width">
         <label>Resumo Profissional</label>
         <textarea
           value={personal.summary}
           onChange={(e) => updatePersonal('summary', e.target.value)}
-          placeholder="Descreve em 2-3 linhas o teu perfil profissional, experiências principais e objetivos..."
+          placeholder="Descreve em 2-3 linhas o teu perfil profissional..."
           rows={4}
           maxLength={500}
         />
         <small className="char-counter">
           {personal.summary.length}/500 caracteres
         </small>
+      </div>
+
+      {/* DISPONIBILIDADE */}
+      <div className="form-grid">
+        <div className="form-field">
+          <label>📅 Disponibilidade</label>
+          <select
+            value={personal.availability}
+            onChange={(e) => updatePersonal('availability', e.target.value)}
+          >
+            <option value="">Selecionar...</option>
+            <option value="Imediata">Imediata</option>
+            <option value="2 semanas">2 semanas</option>
+            <option value="1 mês">1 mês</option>
+            <option value="Outro">Outro</option>
+          </select>
+        </div>
+
+        {personal.availability === 'Outro' && (
+          <div className="form-field">
+            <label>Especificar</label>
+            <input
+              type="text"
+              value={personal.availabilityOther}
+              onChange={(e) => updatePersonal('availabilityOther', e.target.value)}
+              placeholder="Ex: a partir de janeiro 2027"
+            />
+          </div>
+        )}
+      </div>
+
+      {/* MOBILIDADE */}
+      <div className="form-field full-width">
+        <label>🚗 Mobilidade</label>
+
+        <div className="checkbox-group-inline">
+          <label className="checkbox-label-inline">
+            <input
+              type="checkbox"
+              checked={personal.hasDrivingLicense}
+              onChange={(e) => updatePersonal('hasDrivingLicense', e.target.checked)}
+            />
+            <span>Tenho carta de condução</span>
+          </label>
+
+          <label className="checkbox-label-inline">
+            <input
+              type="checkbox"
+              checked={personal.hasCar}
+              onChange={(e) => updatePersonal('hasCar', e.target.checked)}
+            />
+            <span>Tenho carro próprio</span>
+          </label>
+        </div>
+
+        {/* CATEGORIA DA CARTA (só aparece se tiver carta) */}
+        {personal.hasDrivingLicense && (
+          <div className="form-field" style={{ marginTop: '12px' }}>
+            <label>Categoria da Carta</label>
+            <select
+              value={personal.drivingLicenseCategory}
+              onChange={(e) => updatePersonal('drivingLicenseCategory', e.target.value)}
+            >
+              <option value="">Selecionar categoria...</option>
+              <optgroup label="Veículos Ligeiros">
+                <option value="AM">AM — Ciclomotores</option>
+                <option value="A1">A1 — Motociclos até 125cc</option>
+                <option value="A2">A2 — Motociclos até 35kW</option>
+                <option value="A">A — Motociclos sem limite</option>
+                <option value="B1">B1 — Quadriciclos</option>
+                <option value="B">B — Automóveis ligeiros</option>
+                <option value="BE">BE — Ligeiros com reboque</option>
+              </optgroup>
+              <optgroup label="Veículos Pesados">
+                <option value="C1">C1 — Pesados até 7,5t</option>
+                <option value="C">C — Pesados acima de 7,5t</option>
+                <option value="C1E">C1E — Pesados até 7,5t com reboque</option>
+                <option value="CE">CE — Pesados com reboque</option>
+                <option value="D1">D1 — Autocarros até 16 lugares</option>
+                <option value="D">D — Autocarros</option>
+                <option value="D1E">D1E — Autocarros até 16 lugares com reboque</option>
+                <option value="DE">DE — Autocarros com reboque</option>
+              </optgroup>
+            </select>
+          </div>
+        )}
       </div>
 
       {/* FOTO */}

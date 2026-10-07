@@ -6,7 +6,7 @@ interface CVStore {
   template: TemplateType;
   step: number;
 
-  updatePersonal: (field: keyof CVData['personal'], value: string) => void;
+  updatePersonal: (field: keyof CVData['personal'], value: string | boolean) => void;
   updateSummary: (summary: string) => void;
 
   addExperience: () => void;
@@ -33,6 +33,10 @@ interface CVStore {
   updateProject: (id: string, field: string, value: string | string[]) => void;
   removeProject: (id: string) => void;
 
+  addHobby: () => void;
+  updateHobby: (id: string, field: string, value: string) => void;
+  removeHobby: (id: string) => void;
+
   setTemplate: (template: TemplateType) => void;
   setStep: (step: number) => void;
   reset: () => void;
@@ -46,6 +50,12 @@ const initialData: CVData = {
     phone: '',
     location: '',
     summary: '',
+    objective: '',
+    availability: '',
+    availabilityOther: '',
+    hasDrivingLicense: false,
+    drivingLicenseCategory: '',
+    hasCar: false,
   },
   experience: [],
   education: [],
@@ -53,6 +63,7 @@ const initialData: CVData = {
   languages: [],
   certifications: [],
   projects: [],
+  hobbies: [],
 };
 
 const generateId = () => crypto.randomUUID();
@@ -62,7 +73,6 @@ export const useCVStore = create<CVStore>((set) => ({
   template: 'modern',
   step: 1,
 
-  // === PESSOAL ===
   updatePersonal: (field, value) =>
     set((state) => ({
       data: {
@@ -79,7 +89,6 @@ export const useCVStore = create<CVStore>((set) => ({
       },
     })),
 
-  // === EXPERIÊNCIA ===
   addExperience: () =>
     set((state) => ({
       data: {
@@ -118,7 +127,6 @@ export const useCVStore = create<CVStore>((set) => ({
       },
     })),
 
-  // === EDUCAÇÃO ===
   addEducation: () =>
     set((state) => ({
       data: {
@@ -155,15 +163,11 @@ export const useCVStore = create<CVStore>((set) => ({
       },
     })),
 
-  // === HABILIDADES ===
   addSkill: () =>
     set((state) => ({
       data: {
         ...state.data,
-        skills: [
-          ...state.data.skills,
-          { id: generateId(), name: '', level: 3 },
-        ],
+        skills: [...state.data.skills, { id: generateId(), name: '', level: 3 }],
       },
     })),
 
@@ -185,7 +189,6 @@ export const useCVStore = create<CVStore>((set) => ({
       },
     })),
 
-  // === IDIOMAS ===
   addLanguage: () =>
     set((state) => ({
       data: {
@@ -215,7 +218,6 @@ export const useCVStore = create<CVStore>((set) => ({
       },
     })),
 
-  // === CERTIFICAÇÕES ===
   addCertification: () =>
     set((state) => ({
       data: {
@@ -245,19 +247,13 @@ export const useCVStore = create<CVStore>((set) => ({
       },
     })),
 
-  // === PROJETOS ===
   addProject: () =>
     set((state) => ({
       data: {
         ...state.data,
         projects: [
           ...state.data.projects,
-          {
-            id: generateId(),
-            name: '',
-            description: '',
-            technologies: [],
-          },
+          { id: generateId(), name: '', description: '', technologies: [] },
         ],
       },
     })),
@@ -280,7 +276,32 @@ export const useCVStore = create<CVStore>((set) => ({
       },
     })),
 
-  // === TEMPLATE / NAVEGAÇÃO ===
+  addHobby: () =>
+    set((state) => ({
+      data: {
+        ...state.data,
+        hobbies: [...state.data.hobbies, { id: generateId(), name: '' }],
+      },
+    })),
+
+  updateHobby: (id, field, value) =>
+    set((state) => ({
+      data: {
+        ...state.data,
+        hobbies: state.data.hobbies.map((hobby) =>
+          hobby.id === id ? { ...hobby, [field]: value } : hobby
+        ),
+      },
+    })),
+
+  removeHobby: (id) =>
+    set((state) => ({
+      data: {
+        ...state.data,
+        hobbies: state.data.hobbies.filter((hobby) => hobby.id !== id),
+      },
+    })),
+
   setTemplate: (template) => set({ template }),
   setStep: (step) => set({ step }),
   reset: () => set({ data: initialData, template: 'modern', step: 1 }),
