@@ -37,6 +37,18 @@ interface CVStore {
   updateHobby: (id: string, field: string, value: string) => void;
   removeHobby: (id: string) => void;
 
+  addReference: () => void;
+  updateReference: (id: string, field: string, value: string) => void;
+  removeReference: (id: string) => void;
+
+  addVolunteering: () => void;
+  updateVolunteering: (id: string, field: string, value: string | boolean) => void;
+  removeVolunteering: (id: string) => void;
+
+  addAward: () => void;
+  updateAward: (id: string, field: string, value: string) => void;
+  removeAward: (id: string) => void;
+
   setTemplate: (template: TemplateType) => void;
   setStep: (step: number) => void;
   reset: () => void;
@@ -64,6 +76,9 @@ const initialData: CVData = {
   certifications: [],
   projects: [],
   hobbies: [],
+  references: [],
+  volunteering: [],
+  awards: [],
 };
 
 const generateId = () => crypto.randomUUID();
@@ -299,6 +314,104 @@ export const useCVStore = create<CVStore>((set) => ({
       data: {
         ...state.data,
         hobbies: state.data.hobbies.filter((hobby) => hobby.id !== id),
+      },
+    })),
+
+  // === REFERÊNCIAS ===
+  addReference: () =>
+    set((state) => ({
+      data: {
+        ...state.data,
+        references: [
+          ...state.data.references,
+          { id: generateId(), name: '', position: '', company: '', email: '', phone: '' },
+        ],
+      },
+    })),
+
+  updateReference: (id, field, value) =>
+    set((state) => ({
+      data: {
+        ...state.data,
+        references: state.data.references.map((ref) =>
+          ref.id === id ? { ...ref, [field]: value } : ref
+        ),
+      },
+    })),
+
+  removeReference: (id) =>
+    set((state) => ({
+      data: {
+        ...state.data,
+        references: state.data.references.filter((ref) => ref.id !== id),
+      },
+    })),
+
+  // === VOLUNTARIADO ===
+  addVolunteering: () =>
+    set((state) => ({
+      data: {
+        ...state.data,
+        volunteering: [
+          ...state.data.volunteering,
+          {
+            id: generateId(),
+            organization: '',
+            role: '',
+            startDate: '',
+            endDate: '',
+            current: false,
+            description: '',
+          },
+        ],
+      },
+    })),
+
+  updateVolunteering: (id, field, value) =>
+    set((state) => ({
+      data: {
+        ...state.data,
+        volunteering: state.data.volunteering.map((vol) =>
+          vol.id === id ? { ...vol, [field]: value } : vol
+        ),
+      },
+    })),
+
+  removeVolunteering: (id) =>
+    set((state) => ({
+      data: {
+        ...state.data,
+        volunteering: state.data.volunteering.filter((vol) => vol.id !== id),
+      },
+    })),
+
+  // === PRÉMIOS ===
+  addAward: () =>
+    set((state) => ({
+      data: {
+        ...state.data,
+        awards: [
+          ...state.data.awards,
+          { id: generateId(), name: '', issuer: '', date: '', description: '' },
+        ],
+      },
+    })),
+
+  updateAward: (id, field, value) =>
+    set((state) => ({
+      data: {
+        ...state.data,
+        awards: state.data.awards.map((award) =>
+          award.id === id ? { ...award, [field]: value } : award
+        ),
+      },
+    })),
+
+  removeAward: (id) =>
+    set((state) => ({
+      data: {
+        ...state.data,
+        awards: state.data.awards.filter((award) => award.id !== id),
       },
     })),
 

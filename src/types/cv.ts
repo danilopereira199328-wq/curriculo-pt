@@ -70,6 +70,34 @@ export interface CVData {
     id: string;
     name: string;
   }>;
+
+  // 🎯 NOVAS SECÇÕES
+  references: Array<{
+    id: string;
+    name: string;
+    position: string;
+    company: string;
+    email: string;
+    phone: string;
+  }>;
+
+  volunteering: Array<{
+    id: string;
+    organization: string;
+    role: string;
+    startDate: string;
+    endDate: string;
+    current: boolean;
+    description: string;
+  }>;
+
+  awards: Array<{
+    id: string;
+    name: string;
+    issuer: string;
+    date: string;
+    description: string;
+  }>;
 }
 
 export type TemplateType = 'modern';
@@ -82,4 +110,7 @@ export type SectionType =
   | 'languages'
   | 'certifications'
   | 'projects'
-  | 'hobbies';
+  | 'hobbies'
+  | 'references'
+  | 'volunteering'
+  | 'awards';

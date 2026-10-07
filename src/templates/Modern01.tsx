@@ -5,7 +5,19 @@ interface Props {
 }
 
 export function Modern01({ data }: Props) {
-  const { personal, experience, education, skills, languages, certifications, projects, hobbies } = data;
+  const {
+    personal,
+    experience,
+    education,
+    skills,
+    languages,
+    certifications,
+    projects,
+    hobbies,
+    references,
+    volunteering,
+    awards,
+  } = data;
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return '';
@@ -156,6 +168,30 @@ export function Modern01({ data }: Props) {
               ))}
             </section>
           )}
+
+          {/* VOLUNTARIADO */}
+          {volunteering.length > 0 && (
+            <section className="cv-section">
+              <h3 className="cv-section-title">🤝 Voluntariado</h3>
+              {volunteering.map((vol) => (
+                <div key={vol.id} className="cv-item">
+                  <div className="cv-item-header">
+                    <div>
+                      <h4 className="cv-item-title">{vol.role || 'Voluntário'}</h4>
+                      <div className="cv-item-subtitle">{vol.organization}</div>
+                    </div>
+                    <div className="cv-item-date">
+                      {formatDate(vol.startDate)}
+                      {vol.current ? ' — Presente' : vol.endDate ? ` — ${formatDate(vol.endDate)}` : ''}
+                    </div>
+                  </div>
+                  {vol.description && (
+                    <p className="cv-item-description">{vol.description}</p>
+                  )}
+                </div>
+              ))}
+            </section>
+          )}
         </div>
 
         {/* COLUNA DIREITA */}
@@ -196,7 +232,7 @@ export function Modern01({ data }: Props) {
             </section>
           )}
 
-          {/* INFORMAÇÕES (Disponibilidade + Mobilidade) */}
+          {/* INFORMAÇÕES */}
           {(personal.availability || personal.hasDrivingLicense || personal.hasCar) && (
             <section className="cv-section">
               <h3 className="cv-section-title">📅 Informações</h3>
@@ -232,6 +268,45 @@ export function Modern01({ data }: Props) {
                   <div className="cv-cert-issuer">{cert.issuer}</div>
                   {cert.date && (
                     <div className="cv-cert-date">{formatDate(cert.date)}</div>
+                  )}
+                </div>
+              ))}
+            </section>
+          )}
+
+          {/* PRÉMIOS */}
+          {awards.length > 0 && (
+            <section className="cv-section">
+              <h3 className="cv-section-title">🎖️ Prémios</h3>
+              {awards.map((award) => (
+                <div key={award.id} className="cv-certification">
+                  <div className="cv-cert-name">{award.name || 'Prémio'}</div>
+                  {award.issuer && (
+                    <div className="cv-cert-issuer">{award.issuer}</div>
+                  )}
+                  {award.date && (
+                    <div className="cv-cert-date">{formatDate(award.date)}</div>
+                  )}
+                </div>
+              ))}
+            </section>
+          )}
+
+          {/* REFERÊNCIAS */}
+          {references.length > 0 && (
+            <section className="cv-section">
+              <h3 className="cv-section-title">👥 Referências</h3>
+              {references.map((ref) => (
+                <div key={ref.id} className="cv-certification">
+                  <div className="cv-cert-name">{ref.name || 'Referência'}</div>
+                  {ref.position && (
+                    <div className="cv-cert-issuer">
+                      {ref.position}
+                      {ref.company && ` · ${ref.company}`}
+                    </div>
+                  )}
+                  {ref.email && (
+                    <div className="cv-cert-date">{ref.email}</div>
                   )}
                 </div>
               ))}

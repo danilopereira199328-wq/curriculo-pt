@@ -7,6 +7,9 @@ import { LanguagesSection } from './sections/LanguagesSection';
 import { CertificationsSection } from './sections/CertificationsSection';
 import { ProjectsSection } from './sections/ProjectsSection';
 import { HobbiesSection } from './sections/HobbiesSection';
+import { ReferencesSection } from './sections/ReferencesSection';
+import { VolunteeringSection } from './sections/VolunteeringSection';
+import { AwardsSection } from './sections/AwardsSection';
 
 export function CVForm() {
   const { step, setStep } = useCVStore();
@@ -20,6 +23,9 @@ export function CVForm() {
     { id: 6, label: '🏆 Certificações', component: CertificationsSection },
     { id: 7, label: '🚀 Projetos', component: ProjectsSection },
     { id: 8, label: '🎨 Hobbies', component: HobbiesSection },
+    { id: 9, label: '👥 Referências', component: ReferencesSection },
+    { id: 10, label: '🤝 Voluntariado', component: VolunteeringSection },
+    { id: 11, label: '🎖️ Prémios', component: AwardsSection },
   ];
 
   const CurrentSection = sections[step - 1]?.component || PersonalSection;
