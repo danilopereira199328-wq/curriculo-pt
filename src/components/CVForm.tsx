@@ -10,9 +10,11 @@ import { HobbiesSection } from './sections/HobbiesSection';
 import { ReferencesSection } from './sections/ReferencesSection';
 import { VolunteeringSection } from './sections/VolunteeringSection';
 import { AwardsSection } from './sections/AwardsSection';
+import { templates } from '../templates';
+import type { TemplateType } from '../types/cv';
 
 export function CVForm() {
-  const { step, setStep } = useCVStore();
+  const { step, setStep, template, setTemplate } = useCVStore();
 
   const sections = [
     { id: 1, label: '👤 Pessoal', component: PersonalSection },
@@ -32,6 +34,24 @@ export function CVForm() {
 
   return (
     <div className="cv-form">
+      {/* SELETOR DE TEMPLATE */}
+      <div className="template-selector">
+        <span className="template-label">🎨 Template:</span>
+        <div className="template-buttons">
+          {Object.values(templates).map((tpl) => (
+            <button
+              key={tpl.id}
+              type="button"
+              className={`template-btn ${template === tpl.id ? 'active' : ''}`}
+              onClick={() => setTemplate(tpl.id as TemplateType)}
+            >
+              {tpl.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* NAVEGAÇÃO DAS SECÇÕES */}
       <div className="steps-nav">
         {sections.map((sec) => (
           <button

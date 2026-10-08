@@ -1253,3 +1253,348 @@ body {
   border-radius: 10px;
   font-weight: 500;
 }
+
+/* ============================================
+   SELETOR DE TEMPLATE
+   ============================================ */
+
+.template-selector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: #fafafa;
+  border-bottom: 1px solid #e5e5e7;
+}
+
+.template-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.template-buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.template-btn {
+  padding: 6px 14px;
+  border: 1px solid #e5e5e7;
+  background: white;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #1d1d1f;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.template-btn:hover {
+  border-color: #0071e3;
+  color: #0071e3;
+}
+
+.template-btn.active {
+  background: #0071e3;
+  color: white;
+  border-color: #0071e3;
+}
+
+/* ============================================
+   TEMPLATE: CLÁSSICO
+   ============================================ */
+
+.cv-template.classic-01 {
+  width: 794px;
+  height: 1123px;
+  background: white;
+  padding: 50px 60px;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  color: #1a1a1a;
+  overflow: hidden;
+}
+
+.classic-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.classic-name {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin: 0 0 8px 0;
+  color: #1a1a1a;
+}
+
+.classic-job-title {
+  font-size: 14px;
+  font-weight: 400;
+  font-style: italic;
+  color: #555;
+  margin: 0 0 14px 0;
+}
+
+.classic-contacts {
+  font-size: 10px;
+  color: #666;
+  font-family: 'Inter', sans-serif;
+  line-height: 1.6;
+}
+
+.classic-separator {
+  height: 2px;
+  background: #1a1a1a;
+  margin: 20px 0 24px 0;
+}
+
+.classic-section {
+  margin-bottom: 22px;
+}
+
+.classic-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #1a1a1a;
+  margin: 0 0 10px 0;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #1a1a1a;
+  font-family: 'Inter', sans-serif;
+}
+
+.classic-item {
+  margin-bottom: 14px;
+}
+
+.classic-item-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 2px;
+}
+
+.classic-item-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.classic-item-date {
+  font-size: 10px;
+  color: #666;
+  font-style: italic;
+  white-space: nowrap;
+}
+
+.classic-item-subtitle {
+  font-size: 11px;
+  color: #555;
+  font-style: italic;
+  margin-bottom: 4px;
+}
+
+.classic-item-description {
+  font-size: 11px;
+  line-height: 1.5;
+  color: #333;
+  margin: 4px 0 0 0;
+  white-space: pre-line;
+}
+
+.classic-text {
+  font-size: 11px;
+  line-height: 1.6;
+  color: #333;
+  margin: 0;
+}
+
+.classic-inline {
+  font-size: 11px;
+  color: #333;
+  margin-bottom: 4px;
+  font-family: 'Inter', sans-serif;
+}
+
+/* ============================================
+   TEMPLATE: MINIMALISTA
+   ============================================ */
+
+.cv-template.minimal-01 {
+  width: 794px;
+  height: 1123px;
+  background: white;
+  padding: 60px 70px;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #2a2a2a;
+  overflow: hidden;
+}
+
+.minimal-header {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 40px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid #eee;
+}
+
+.minimal-photo {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.minimal-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.minimal-header-text {
+  flex: 1;
+}
+
+.minimal-name {
+  font-size: 30px;
+  font-weight: 300;
+  letter-spacing: 2px;
+  margin: 0 0 6px 0;
+  color: #1a1a1a;
+}
+
+.minimal-job-title {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
+.minimal-contacts {
+  font-size: 10px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.minimal-links {
+  font-size: 10px;
+  color: #999;
+}
+
+.minimal-section {
+  margin-bottom: 30px;
+}
+
+.minimal-section-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: #999;
+  margin: 0 0 16px 0;
+}
+
+.minimal-item {
+  margin-bottom: 18px;
+}
+
+.minimal-item-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.minimal-item-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1a1a1a;
+}
+
+.minimal-item-date {
+  font-size: 10px;
+  color: #999;
+  white-space: nowrap;
+}
+
+.minimal-item-sub {
+  font-size: 11px;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.minimal-item-desc {
+  font-size: 11px;
+  line-height: 1.6;
+  color: #444;
+  margin: 6px 0 0 0;
+  white-space: pre-line;
+}
+
+.minimal-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 6px;
+}
+
+.minimal-tag {
+  font-size: 9px;
+  padding: 3px 8px;
+  background: #f0f0f2;
+  border-radius: 10px;
+  color: #444;
+}
+
+.minimal-two-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+}
+
+.minimal-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.minimal-list li {
+  font-size: 11px;
+  color: #333;
+  padding: 3px 0;
+  line-height: 1.5;
+}
+
+.minimal-muted {
+  color: #999;
+}
+
+.minimal-line {
+  font-size: 11px;
+  color: #333;
+  padding: 4px 0;
+  line-height: 1.5;
+}
+
+/* ============================================
+   RESPONSIVO PARA O SELETOR
+   ============================================ */
+
+@media (max-width: 768px) {
+  .template-selector {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}

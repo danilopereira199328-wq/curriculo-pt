@@ -99,8 +99,7 @@ export interface CVData {
     description: string;
   }>;
 }
-
-export type TemplateType = 'modern';
+export type TemplateType = 'modern' | 'classic' | 'minimal';
 
 export type SectionType =
   | 'personal'
