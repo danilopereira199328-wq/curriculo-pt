@@ -71,7 +71,6 @@ export interface CVData {
     name: string;
   }>;
 
-  // 🎯 NOVAS SECÇÕES
   references: Array<{
     id: string;
     name: string;
@@ -98,7 +97,14 @@ export interface CVData {
     date: string;
     description: string;
   }>;
+
+  // 👇 NOVO — tema visual (cor de destaque)
+  theme?: {
+    accentColor?: string;  // ex: "#0066FF"
+    headerColor?: string;  // opcional
+  };
 }
+
 export type TemplateType = 'modern' | 'classic' | 'minimal';
 
 export type SectionType =
@@ -113,3 +119,4 @@ export type SectionType =
   | 'references'
   | 'volunteering'
   | 'awards';
+

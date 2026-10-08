@@ -11,10 +11,11 @@ import { ReferencesSection } from './sections/ReferencesSection';
 import { VolunteeringSection } from './sections/VolunteeringSection';
 import { AwardsSection } from './sections/AwardsSection';
 import { templates } from '../templates';
+import { ColorPicker } from './ColorPicker';
 import type { TemplateType } from '../types/cv';
 
 export function CVForm() {
-  const { step, setStep, template, setTemplate } = useCVStore();
+  const { step, setStep, template, setTemplate, data, setData } = useCVStore();
 
   const sections = [
     { id: 1, label: '👤 Pessoal', component: PersonalSection },
@@ -49,6 +50,19 @@ export function CVForm() {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* 👇 NOVO — COR DE DESTAQUE */}
+      <div className="mt-4 max-w-md">
+        <ColorPicker
+          value={data.theme?.accentColor || '#0066FF'}
+          onChange={(color) =>
+            setData({
+              ...data,
+              theme: { ...(data.theme || {}), accentColor: color },
+            })
+          }
+        />
       </div>
 
       {/* NAVEGAÇÃO DAS SECÇÕES */}

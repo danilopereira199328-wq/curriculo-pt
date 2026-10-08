@@ -3,7 +3,7 @@ import { useCVStore } from '../store/cvStore';
 import { exportCVAsPDF } from '../utils/exportCV';
 
 export function DownloadButtons() {
-  const { data, template } = useCVStore();
+  const { data, template, reset } = useCVStore();
   const [isDownloading, setIsDownloading] = useState(false);
 
   const handleDownload = async () => {
@@ -18,6 +18,16 @@ export function DownloadButtons() {
     }
   };
 
+  const handleReset = () => {
+    if (
+      confirm(
+        'Tens a certeza que queres apagar tudo? Esta ação não pode ser desfeita.'
+      )
+    ) {
+      reset();
+    }
+  };
+
   return (
     <div className="download-buttons">
       <button
@@ -27,8 +37,38 @@ export function DownloadButtons() {
       >
         {isDownloading ? '⏳ A gerar PDF...' : '📥 Descarregar Currículo PDF'}
       </button>
+
+      {/* 👇 NOVO — botão limpar rascunho */}
+      <button
+  onClick={handleReset}
+  type="button"
+  style={{
+    display: 'block',
+    width: '100%',
+    marginTop: '12px',
+    padding: '10px',
+    background: '#fee2e2',
+    color: '#dc2626',
+    border: '1px solid #dc2626',
+    borderRadius: '6px',
+    fontSize: '14px',
+    fontWeight: '500',
+    cursor: 'pointer',
+    textAlign: 'center',
+  }}
+>
+  🗑️ Limpar rascunho
+</button>
+
       <div className="download-template-info">
-        Template: <strong>{template === 'classic' ? 'Clássico' : template === 'minimal' ? 'Minimalista' : 'Moderno'}</strong>
+        Template:{' '}
+        <strong>
+          {template === 'classic'
+            ? 'Clássico'
+            : template === 'minimal'
+            ? 'Minimalista'
+            : 'Moderno'}
+        </strong>
       </div>
     </div>
   );

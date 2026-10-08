@@ -93,8 +93,11 @@ async function renderModern(pdfDoc: PDFDocument, data: CVData, fonts: Fonts): Pr
   let page = pdfDoc.addPage([A4_WIDTH, A4_HEIGHT]);
   const personal: any = data.personal || {};
 
-  const primaryColor = rgb(0.12, 0.24, 0.42);
-  const accentColor = rgb(0.0, 0.44, 0.89);
+  // 👇 paleta dinâmica
+  const palette = buildPalette(data.theme?.accentColor);
+  const primaryColor = palette.primary;
+  const accentColor = palette.accent;
+
   const textColor = rgb(0.1, 0.1, 0.1);
   const mutedColor = rgb(0.4, 0.4, 0.45);
 
@@ -171,6 +174,10 @@ async function renderClassic(pdfDoc: PDFDocument, data: CVData, fonts: Fonts): P
   const personal: any = data.personal || {};
   let y = A4_HEIGHT - 60;
 
+  // 👇 paleta dinâmica
+  const palette = buildPalette(data.theme?.accentColor);
+  const accentColor = palette.accent;
+
   const textColor = rgb(0.1, 0.1, 0.1);
   const mutedColor = rgb(0.4, 0.4, 0.45);
 
@@ -224,7 +231,7 @@ async function renderClassic(pdfDoc: PDFDocument, data: CVData, fonts: Fonts): P
   await renderContent(data, fonts, {
     pdfDoc,
     getPage, setPage, getY, setY,
-    textColor, mutedColor, accentColor: textColor,
+    textColor, mutedColor, accentColor,
     titleStyle: 'classic',
     titleUppercase: false,
     topMargin: 60,
@@ -240,9 +247,12 @@ async function renderMinimal(pdfDoc: PDFDocument, data: CVData, fonts: Fonts): P
   const personal: any = data.personal || {};
   let y = A4_HEIGHT - 70;
 
+  // 👇 paleta dinâmica
+  const palette = buildPalette(data.theme?.accentColor);
+  const accentColor = palette.accent;
+
   const textColor = rgb(0.1, 0.1, 0.1);
   const mutedColor = rgb(0.5, 0.5, 0.5);
-  const accentColor = rgb(0.7, 0.7, 0.7);
 
   let textX = MARGIN + 20;
   let textWidth = A4_WIDTH - MARGIN * 2 - 20;
@@ -331,7 +341,6 @@ async function renderContent(data: CVData, fonts: Fonts, ctx: RenderContext): Pr
 
   const { textColor, mutedColor, accentColor, titleStyle, titleUppercase } = ctx;
 
-  // CHECKPAGE — cria página nova de verdade
   const checkPage = (needed: number) => {
     if (ctx.getY() - needed < MARGIN) {
       const newPage = ctx.pdfDoc.addPage([A4_WIDTH, A4_HEIGHT]);
@@ -359,7 +368,7 @@ async function renderContent(data: CVData, fonts: Fonts, ctx: RenderContext): Pr
     } else if (titleStyle === 'classic') {
       ctx.getPage().drawLine({
         start: { x: MARGIN, y: y - 4 }, end: { x: A4_WIDTH - MARGIN, y: y - 4 },
-        thickness: 0.5, color: textColor,
+        thickness: 0.5, color: accentColor,
       });
     } else {
       ctx.getPage().drawLine({
@@ -758,6 +767,40 @@ function formatDateRange(start?: string, end?: string, current?: boolean): strin
   if (s) return `${s} — Presente`;
   if (e) return e;
   return '';
+}
+
+// Converte "#RRGGBB" em RGB do pdf-lib
+function hexToRgb(hex: string): RGB {
+  const clean = hex.replace('#', '');
+  if (clean.length !== 6) return rgb(0, 0.44, 0.89);
+  const r = parseInt(clean.substring(0, 2), 16) / 255;
+  const g = parseInt(clean.substring(2, 4), 16) / 255;
+  const b = parseInt(clean.substring(4, 6), 16) / 255;
+  return rgb(r, g, b);
+}
+
+// Escurece uma cor hex (amount 0..1)
+function darkenHex(hex: string, amount: number): string {
+  const clean = hex.replace('#', '');
+  if (clean.length !== 6) return hex;
+  const r = Math.max(0, parseInt(clean.substring(0, 2), 16) - amount * 255);
+  const g = Math.max(0, parseInt(clean.substring(2, 4), 16) - amount * 255);
+  const b = Math.max(0, parseInt(clean.substring(4, 6), 16) - amount * 255);
+  return (
+    '#' +
+    [r, g, b]
+      .map((v) => Math.round(v).toString(16).padStart(2, '0'))
+      .join('')
+  );
+}
+
+// Gera paleta a partir do accentColor
+function buildPalette(accentHex?: string) {
+  const accent = accentHex || '#0066FF';
+  return {
+    accent: hexToRgb(accent),
+    primary: hexToRgb(darkenHex(accent, 0.3)),
+  };
 }
 
 function wrapText(text: string, maxChars: number): string[] {
