@@ -1598,3 +1598,17 @@ body {
     gap: 8px;
   }
 }
+
+/* Info do template no botão de download */
+.download-template-info {
+  font-size: 11px;
+  color: #888;
+  text-align: center;
+  margin-top: 8px;
+  font-style: italic;
+}
+
+.download-template-info strong {
+  color: #1d1d1f;
+  font-weight: 600;
+}

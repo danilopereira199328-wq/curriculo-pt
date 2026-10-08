@@ -1,518 +1,748 @@
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
-import type { CVData } from '../types/cv';
+import type { PDFPage, PDFFont, RGB } from 'pdf-lib';
+import type { CVData, TemplateType } from '../types/cv';
 
 const A4_WIDTH = 595.28;
 const A4_HEIGHT = 841.89;
 const MARGIN = 40;
 
-export async function exportCVAsPDF(data: CVData): Promise<void> {
+// ============================================
+// TIPOS
+// ============================================
+
+interface Fonts {
+  regular: PDFFont;
+  bold: PDFFont;
+  italic: PDFFont;
+  serif: PDFFont;
+  serifBold: PDFFont;
+  serifItalic: PDFFont;
+}
+
+interface RenderContext {
+  pdfDoc: PDFDocument;
+  getPage: () => PDFPage;
+  setPage: (p: PDFPage) => void;
+  getY: () => number;
+  setY: (val: number) => void;
+  textColor: RGB;
+  mutedColor: RGB;
+  accentColor: RGB;
+  titleStyle: 'modern' | 'classic' | 'minimal';
+  titleUppercase: boolean;
+  topMargin: number;
+  drawPageHeader?: (page: PDFPage) => void;
+}
+
+// ============================================
+// FUNÇÃO PRINCIPAL
+// ============================================
+
+export async function exportCVAsPDF(data: CVData, template: TemplateType): Promise<void> {
+  if (!data) throw new Error('Dados do CV em falta.');
+
   const pdfDoc = await PDFDocument.create();
+  const fonts: Fonts = {
+    regular: await pdfDoc.embedFont(StandardFonts.Helvetica),
+    bold: await pdfDoc.embedFont(StandardFonts.HelveticaBold),
+    italic: await pdfDoc.embedFont(StandardFonts.HelveticaOblique),
+    serif: await pdfDoc.embedFont(StandardFonts.TimesRoman),
+    serifBold: await pdfDoc.embedFont(StandardFonts.TimesRomanBold),
+    serifItalic: await pdfDoc.embedFont(StandardFonts.TimesRomanItalic),
+  };
+
+  try {
+    if (template === 'classic') {
+      await renderClassic(pdfDoc, data, fonts);
+    } else if (template === 'minimal') {
+      await renderMinimal(pdfDoc, data, fonts);
+    } else {
+      await renderModern(pdfDoc, data, fonts);
+    }
+
+    const pdfBytes = await pdfDoc.save();
+    const blob = new Blob([pdfBytes as unknown as BlobPart], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+
+    const safeName =
+      (data.personal?.fullName || 'curriculo')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '') || 'curriculo';
+
+    const link = document.createElement('a');
+    link.download = `cv-${safeName}.pdf`;
+    link.href = url;
+    link.click();
+
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('[exportCV] Erro ao gerar PDF:', error);
+    throw error;
+  }
+}
+
+// ============================================
+// TEMPLATE MODERNO
+// ============================================
+
+async function renderModern(pdfDoc: PDFDocument, data: CVData, fonts: Fonts): Promise<void> {
   let page = pdfDoc.addPage([A4_WIDTH, A4_HEIGHT]);
-
-  const fontRegular = await pdfDoc.embedFont(StandardFonts.Helvetica);
-  const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-  const fontItalic = await pdfDoc.embedFont(StandardFonts.HelveticaOblique);
-
-  const {
-    personal,
-    experience,
-    education,
-    skills,
-    languages,
-    certifications,
-    projects,
-    hobbies,
-    references,
-    volunteering,
-    awards,
-  } = data;
+  const personal: any = data.personal || {};
 
   const primaryColor = rgb(0.12, 0.24, 0.42);
   const accentColor = rgb(0.0, 0.44, 0.89);
-  const textColor = rgb(0.1, 0.1, 0.12);
+  const textColor = rgb(0.1, 0.1, 0.1);
   const mutedColor = rgb(0.4, 0.4, 0.45);
 
-  // HEADER
   page.drawRectangle({
-    x: 0,
-    y: A4_HEIGHT - 160,
-    width: A4_WIDTH,
-    height: 160,
-    color: primaryColor,
+    x: 0, y: A4_HEIGHT - 160, width: A4_WIDTH, height: 160, color: primaryColor,
   });
 
   let photoEndX = MARGIN;
   if (personal.photo) {
     try {
       const photoBytes = await fetch(personal.photo).then((r) => r.arrayBuffer());
-      let image;
-      if (personal.photo.includes('data:image/png')) {
-        image = await pdfDoc.embedPng(photoBytes);
-      } else {
-        image = await pdfDoc.embedJpg(photoBytes);
-      }
-
+      const image = personal.photo.includes('data:image/png')
+        ? await pdfDoc.embedPng(photoBytes)
+        : await pdfDoc.embedJpg(photoBytes);
       const photoSize = 90;
-      page.drawImage(image, {
-        x: MARGIN,
-        y: A4_HEIGHT - 125,
-        width: photoSize,
-        height: photoSize,
-      });
-
+      page.drawImage(image, { x: MARGIN, y: A4_HEIGHT - 125, width: photoSize, height: photoSize });
       page.drawEllipse({
-        x: MARGIN + photoSize / 2,
-        y: A4_HEIGHT - 125 + photoSize / 2,
-        xScale: photoSize / 2,
-        yScale: photoSize / 2,
-        borderColor: rgb(1, 1, 1),
-        borderWidth: 2,
+        x: MARGIN + photoSize / 2, y: A4_HEIGHT - 125 + photoSize / 2,
+        xScale: photoSize / 2, yScale: photoSize / 2,
+        borderColor: rgb(1, 1, 1), borderWidth: 2,
       });
-
       photoEndX = MARGIN + photoSize + 20;
-    } catch (error) {
-      console.error('Erro ao carregar foto:', error);
-    }
+    } catch (error) { console.error('Erro foto:', error); }
   }
 
   page.drawText(personal.fullName || 'Nome Completo', {
-    x: photoEndX,
-    y: A4_HEIGHT - 70,
-    size: 22,
-    font: fontBold,
-    color: rgb(1, 1, 1),
+    x: photoEndX, y: A4_HEIGHT - 70, size: 22, font: fonts.bold, color: rgb(1, 1, 1),
     maxWidth: A4_WIDTH - photoEndX - MARGIN,
   });
-
   page.drawText(personal.jobTitle || 'Cargo Profissional', {
-    x: photoEndX,
-    y: A4_HEIGHT - 95,
-    size: 13,
-    font: fontRegular,
-    color: rgb(0.85, 0.85, 0.9),
-    maxWidth: A4_WIDTH - photoEndX - MARGIN,
+    x: photoEndX, y: A4_HEIGHT - 95, size: 13, font: fonts.regular,
+    color: rgb(0.85, 0.85, 0.9), maxWidth: A4_WIDTH - photoEndX - MARGIN,
   });
 
-  const contactParts = [personal.email, personal.phone, personal.location].filter(Boolean);
-  if (contactParts.length > 0) {
-    page.drawText(contactParts.join('  ·  '), {
-      x: photoEndX,
-      y: A4_HEIGHT - 120,
-      size: 9,
-      font: fontRegular,
-      color: rgb(0.85, 0.85, 0.9),
-      maxWidth: A4_WIDTH - photoEndX - MARGIN,
+  const contacts = [personal.email, personal.phone, personal.location].filter(Boolean).join('  ·  ');
+  if (contacts) {
+    page.drawText(contacts, {
+      x: photoEndX, y: A4_HEIGHT - 120, size: 9, font: fonts.regular,
+      color: rgb(0.85, 0.85, 0.9), maxWidth: A4_WIDTH - photoEndX - MARGIN,
     });
   }
 
-  const linkParts = [personal.linkedin, personal.website, personal.github].filter(Boolean);
-  if (linkParts.length > 0) {
-    page.drawText(linkParts.join('  ·  '), {
-      x: photoEndX,
-      y: A4_HEIGHT - 135,
-      size: 8,
-      font: fontRegular,
-      color: rgb(0.7, 0.7, 0.8),
-      maxWidth: A4_WIDTH - photoEndX - MARGIN,
+  const links = [personal.linkedin, personal.website, personal.github].filter(Boolean).join('  ·  ');
+  if (links) {
+    page.drawText(links, {
+      x: photoEndX, y: A4_HEIGHT - 135, size: 8, font: fonts.regular,
+      color: rgb(0.7, 0.7, 0.8), maxWidth: A4_WIDTH - photoEndX - MARGIN,
     });
   }
 
   let y = A4_HEIGHT - 200;
 
-  const checkPage = (neededSpace: number) => {
-    if (y - neededSpace < MARGIN) {
-      page = pdfDoc.addPage([A4_WIDTH, A4_HEIGHT]);
-      y = A4_HEIGHT - 60;
+  const getPage = () => page;
+  const setPage = (p: PDFPage) => { page = p; };
+  const getY = () => y;
+  const setY = (val: number) => { y = val; };
+
+  await renderContent(data, fonts, {
+    pdfDoc,
+    getPage, setPage, getY, setY,
+    textColor, mutedColor, accentColor,
+    titleStyle: 'modern',
+    titleUppercase: true,
+    topMargin: 60,
+  });
+}
+
+// ============================================
+// TEMPLATE CLÁSSICO
+// ============================================
+
+async function renderClassic(pdfDoc: PDFDocument, data: CVData, fonts: Fonts): Promise<void> {
+  let page = pdfDoc.addPage([A4_WIDTH, A4_HEIGHT]);
+  const personal: any = data.personal || {};
+  let y = A4_HEIGHT - 60;
+
+  const textColor = rgb(0.1, 0.1, 0.1);
+  const mutedColor = rgb(0.4, 0.4, 0.45);
+
+  const nameSize = 24;
+  const nameWidth = fonts.serifBold.widthOfTextAtSize(personal.fullName || 'Nome Completo', nameSize);
+  page.drawText(personal.fullName || 'Nome Completo', {
+    x: (A4_WIDTH - nameWidth) / 2, y, size: nameSize, font: fonts.serifBold, color: textColor,
+  });
+  y -= 20;
+
+  if (personal.jobTitle) {
+    const jobSize = 12;
+    const jobWidth = fonts.serifItalic.widthOfTextAtSize(personal.jobTitle, jobSize);
+    page.drawText(personal.jobTitle, {
+      x: (A4_WIDTH - jobWidth) / 2, y, size: jobSize, font: fonts.serifItalic, color: mutedColor,
+    });
+    y -= 16;
+  }
+
+  const contacts = [personal.email, personal.phone, personal.location].filter(Boolean).join('  ·  ');
+  if (contacts) {
+    const contactSize = 9;
+    const contactWidth = fonts.regular.widthOfTextAtSize(contacts, contactSize);
+    page.drawText(contacts, {
+      x: (A4_WIDTH - contactWidth) / 2, y, size: contactSize, font: fonts.regular, color: mutedColor,
+    });
+    y -= 12;
+  }
+
+  const links = [personal.linkedin, personal.website, personal.github].filter(Boolean).join('  ·  ');
+  if (links) {
+    const linkSize = 8;
+    const linkWidth = fonts.regular.widthOfTextAtSize(links, linkSize);
+    page.drawText(links, {
+      x: (A4_WIDTH - linkWidth) / 2, y, size: linkSize, font: fonts.regular, color: rgb(0.6, 0.6, 0.65),
+    });
+    y -= 16;
+  }
+
+  page.drawLine({
+    start: { x: MARGIN, y }, end: { x: A4_WIDTH - MARGIN, y },
+    thickness: 2, color: textColor,
+  });
+  y -= 24;
+
+  const getPage = () => page;
+  const setPage = (p: PDFPage) => { page = p; };
+  const getY = () => y;
+  const setY = (val: number) => { y = val; };
+
+  await renderContent(data, fonts, {
+    pdfDoc,
+    getPage, setPage, getY, setY,
+    textColor, mutedColor, accentColor: textColor,
+    titleStyle: 'classic',
+    titleUppercase: false,
+    topMargin: 60,
+  });
+}
+
+// ============================================
+// TEMPLATE MINIMALISTA
+// ============================================
+
+async function renderMinimal(pdfDoc: PDFDocument, data: CVData, fonts: Fonts): Promise<void> {
+  let page = pdfDoc.addPage([A4_WIDTH, A4_HEIGHT]);
+  const personal: any = data.personal || {};
+  let y = A4_HEIGHT - 70;
+
+  const textColor = rgb(0.1, 0.1, 0.1);
+  const mutedColor = rgb(0.5, 0.5, 0.5);
+  const accentColor = rgb(0.7, 0.7, 0.7);
+
+  let textX = MARGIN + 20;
+  let textWidth = A4_WIDTH - MARGIN * 2 - 20;
+
+  if (personal.photo) {
+    try {
+      const photoBytes = await fetch(personal.photo).then((r) => r.arrayBuffer());
+      const image = personal.photo.includes('data:image/png')
+        ? await pdfDoc.embedPng(photoBytes)
+        : await pdfDoc.embedJpg(photoBytes);
+      const photoSize = 80;
+      page.drawImage(image, { x: MARGIN, y: y - photoSize + 10, width: photoSize, height: photoSize });
+      textX = MARGIN + photoSize + 20;
+      textWidth = A4_WIDTH - MARGIN * 2 - photoSize - 20;
+    } catch (error) { console.error('Erro foto:', error); }
+  }
+
+  page.drawText(personal.fullName || 'Nome Completo', {
+    x: textX, y, size: 26, font: fonts.regular, color: textColor, maxWidth: textWidth,
+  });
+  y -= 22;
+
+  if (personal.jobTitle) {
+    page.drawText(personal.jobTitle, {
+      x: textX, y, size: 11, font: fonts.regular, color: mutedColor, maxWidth: textWidth,
+    });
+    y -= 14;
+  }
+
+  const contacts = [personal.email, personal.phone, personal.location].filter(Boolean).join('  ·  ');
+  if (contacts) {
+    page.drawText(contacts, {
+      x: textX, y, size: 9, font: fonts.regular, color: mutedColor, maxWidth: textWidth,
+    });
+    y -= 12;
+  }
+
+  const links = [personal.linkedin, personal.website, personal.github].filter(Boolean).join('  ·  ');
+  if (links) {
+    page.drawText(links, {
+      x: textX, y, size: 8, font: fonts.regular, color: rgb(0.6, 0.6, 0.6), maxWidth: textWidth,
+    });
+    y -= 12;
+  }
+
+  y = Math.min(y - 20, A4_HEIGHT - 160);
+
+  page.drawLine({
+    start: { x: MARGIN + 20, y }, end: { x: A4_WIDTH - MARGIN - 20, y },
+    thickness: 0.5, color: rgb(0.9, 0.9, 0.9),
+  });
+  y -= 24;
+
+  const getPage = () => page;
+  const setPage = (p: PDFPage) => { page = p; };
+  const getY = () => y;
+  const setY = (val: number) => { y = val; };
+
+  await renderContent(data, fonts, {
+    pdfDoc,
+    getPage, setPage, getY, setY,
+    textColor, mutedColor, accentColor,
+    titleStyle: 'minimal',
+    titleUppercase: false,
+    topMargin: 70,
+  });
+}
+
+// ============================================
+// RENDER CONTENT (partilhado)
+// ============================================
+
+async function renderContent(data: CVData, fonts: Fonts, ctx: RenderContext): Promise<void> {
+  const d: any = data || {};
+  const personal: any = d.personal || {};
+  const experience = Array.isArray(d.experience) ? d.experience : [];
+  const education = Array.isArray(d.education) ? d.education : [];
+  const skills = Array.isArray(d.skills) ? d.skills : [];
+  const languages = Array.isArray(d.languages) ? d.languages : [];
+  const certifications = Array.isArray(d.certifications) ? d.certifications : [];
+  const projects = Array.isArray(d.projects) ? d.projects : [];
+  const hobbies = Array.isArray(d.hobbies) ? d.hobbies : [];
+  const references = Array.isArray(d.references) ? d.references : [];
+  const volunteering = Array.isArray(d.volunteering) ? d.volunteering : [];
+  const awards = Array.isArray(d.awards) ? d.awards : [];
+
+  const { textColor, mutedColor, accentColor, titleStyle, titleUppercase } = ctx;
+
+  // CHECKPAGE — cria página nova de verdade
+  const checkPage = (needed: number) => {
+    if (ctx.getY() - needed < MARGIN) {
+      const newPage = ctx.pdfDoc.addPage([A4_WIDTH, A4_HEIGHT]);
+      ctx.setPage(newPage);
+      if (ctx.drawPageHeader) ctx.drawPageHeader(newPage);
+      ctx.setY(A4_HEIGHT - ctx.topMargin);
     }
+  };
+
+  const drawTitle = (title: string) => {
+    const displayTitle = titleUppercase ? title.toUpperCase() : title;
+    const titleFont = titleStyle === 'classic' ? fonts.serifBold : fonts.bold;
+    const titleSize = titleStyle === 'minimal' ? 9 : (titleStyle === 'classic' ? 12 : 11);
+    const y = ctx.getY();
+
+    ctx.getPage().drawText(displayTitle, {
+      x: MARGIN, y, size: titleSize, font: titleFont, color: accentColor,
+    });
+
+    if (titleStyle === 'modern') {
+      ctx.getPage().drawLine({
+        start: { x: MARGIN, y: y - 4 }, end: { x: A4_WIDTH - MARGIN, y: y - 4 },
+        thickness: 0.5, color: accentColor,
+      });
+    } else if (titleStyle === 'classic') {
+      ctx.getPage().drawLine({
+        start: { x: MARGIN, y: y - 4 }, end: { x: A4_WIDTH - MARGIN, y: y - 4 },
+        thickness: 0.5, color: textColor,
+      });
+    } else {
+      ctx.getPage().drawLine({
+        start: { x: MARGIN, y: y - 4 }, end: { x: MARGIN + 30, y: y - 4 },
+        thickness: 0.5, color: accentColor,
+      });
+    }
+    ctx.setY(y - (titleStyle === 'minimal' ? 18 : 22));
   };
 
   // OBJETIVO
   if (personal.objective?.trim()) {
     checkPage(60);
-    y = drawSectionTitle(page, 'OBJETIVO PROFISSIONAL', fontBold, accentColor, y);
-    const lines = wrapText(personal.objective, 95);
-    lines.forEach((line) => {
-      checkPage(20);
-      page.drawText(line, { x: MARGIN, y, size: 10, font: fontItalic, color: textColor });
-      y -= 14;
+    drawTitle('Objetivo Profissional');
+    wrapText(personal.objective, 90).forEach((line) => {
+      checkPage(14);
+      const ly = ctx.getY();
+      ctx.getPage().drawText(line, { x: MARGIN, y: ly, size: 10, font: fonts.italic, color: textColor });
+      ctx.setY(ly - 14);
     });
-    y -= 10;
+    ctx.setY(ctx.getY() - 10);
   }
 
   // SOBRE MIM
   if (personal.summary?.trim()) {
     checkPage(60);
-    y = drawSectionTitle(page, 'SOBRE MIM', fontBold, accentColor, y);
-    const lines = wrapText(personal.summary, 95);
-    lines.forEach((line) => {
-      checkPage(20);
-      page.drawText(line, { x: MARGIN, y, size: 10, font: fontItalic, color: textColor });
-      y -= 14;
+    drawTitle('Sobre Mim');
+    wrapText(personal.summary, 90).forEach((line) => {
+      checkPage(14);
+      const ly = ctx.getY();
+      ctx.getPage().drawText(line, { x: MARGIN, y: ly, size: 10, font: fonts.italic, color: textColor });
+      ctx.setY(ly - 14);
     });
-    y -= 10;
+    ctx.setY(ctx.getY() - 10);
   }
 
   // EXPERIÊNCIA
   if (experience.length > 0) {
     checkPage(60);
-    y = drawSectionTitle(page, 'EXPERIÊNCIA PROFISSIONAL', fontBold, accentColor, y);
-    experience.forEach((exp) => {
-      checkPage(60);
-      page.drawText(exp.position || 'Cargo', {
-        x: MARGIN, y, size: 11, font: fontBold, color: textColor,
-        maxWidth: A4_WIDTH - MARGIN * 2 - 100,
+    drawTitle('Experiência Profissional');
+    experience.forEach((exp: any) => {
+      checkPage(70);
+      let y = ctx.getY();
+      ctx.getPage().drawText(exp.position || 'Cargo', {
+        x: MARGIN, y, size: 11, font: fonts.bold, color: textColor,
+        maxWidth: A4_WIDTH - MARGIN * 2 - 120,
       });
-      const dateStr = `${formatDate(exp.startDate)} — ${exp.current ? 'Presente' : formatDate(exp.endDate) || 'Presente'}`;
-      const dateWidth = fontRegular.widthOfTextAtSize(dateStr, 9);
-      page.drawText(dateStr, {
-        x: A4_WIDTH - MARGIN - dateWidth, y, size: 9, font: fontRegular, color: mutedColor,
-      });
-      y -= 14;
-      const companyLine = `${exp.company || 'Empresa'}${exp.location ? ' · ' + exp.location : ''}`;
-      page.drawText(companyLine, {
-        x: MARGIN, y, size: 10, font: fontItalic, color: mutedColor,
-        maxWidth: A4_WIDTH - MARGIN * 2,
-      });
-      y -= 16;
-      if (exp.description?.trim()) {
-        const lines = wrapText(exp.description, 100);
-        lines.forEach((line) => {
-          checkPage(20);
-          page.drawText(line, { x: MARGIN, y, size: 9, font: fontRegular, color: textColor });
-          y -= 12;
+      const dateStr = formatDateRange(exp.startDate, exp.endDate, exp.current);
+      if (dateStr) {
+        const dateWidth = fonts.regular.widthOfTextAtSize(dateStr, 9);
+        ctx.getPage().drawText(dateStr, {
+          x: A4_WIDTH - MARGIN - dateWidth, y, size: 9, font: fonts.regular, color: mutedColor,
         });
       }
-      y -= 8;
+      y -= 14;
+      ctx.setY(y);
+      ctx.getPage().drawText(`${exp.company || 'Empresa'}${exp.location ? ' · ' + exp.location : ''}`, {
+        x: MARGIN, y, size: 10, font: fonts.italic, color: mutedColor,
+        maxWidth: A4_WIDTH - MARGIN * 2,
+      });
+      ctx.setY(y - 16);
+      if (exp.description?.trim()) {
+        wrapText(exp.description, 95).forEach((line) => {
+          checkPage(12);
+          const ly = ctx.getY();
+          ctx.getPage().drawText(line, { x: MARGIN, y: ly, size: 9, font: fonts.regular, color: textColor });
+          ctx.setY(ly - 12);
+        });
+      }
+      ctx.setY(ctx.getY() - 8);
     });
-    y -= 5;
+    ctx.setY(ctx.getY() - 5);
   }
 
   // EDUCAÇÃO
   if (education.length > 0) {
     checkPage(60);
-    y = drawSectionTitle(page, 'EDUCAÇÃO', fontBold, accentColor, y);
-    education.forEach((edu) => {
+    drawTitle('Educação');
+    education.forEach((edu: any) => {
       checkPage(50);
-      page.drawText(edu.degree || 'Curso', {
-        x: MARGIN, y, size: 11, font: fontBold, color: textColor,
-        maxWidth: A4_WIDTH - MARGIN * 2 - 100,
+      let y = ctx.getY();
+      ctx.getPage().drawText(edu.degree || 'Curso', {
+        x: MARGIN, y, size: 11, font: fonts.bold, color: textColor,
+        maxWidth: A4_WIDTH - MARGIN * 2 - 120,
       });
-      const dateStr = `${formatDate(edu.startDate)} — ${formatDate(edu.endDate)}`;
-      const dateWidth = fontRegular.widthOfTextAtSize(dateStr, 9);
-      page.drawText(dateStr, {
-        x: A4_WIDTH - MARGIN - dateWidth, y, size: 9, font: fontRegular, color: mutedColor,
-      });
+      const dateStr = formatDateRange(edu.startDate, edu.endDate, false);
+      if (dateStr) {
+        const dateWidth = fonts.regular.widthOfTextAtSize(dateStr, 9);
+        ctx.getPage().drawText(dateStr, {
+          x: A4_WIDTH - MARGIN - dateWidth, y, size: 9, font: fonts.regular, color: mutedColor,
+        });
+      }
       y -= 14;
-      const instLine = `${edu.institution || 'Instituição'}${edu.field ? ' · ' + edu.field : ''}`;
-      page.drawText(instLine, {
-        x: MARGIN, y, size: 10, font: fontItalic, color: mutedColor,
+      ctx.getPage().drawText(`${edu.institution || 'Instituição'}${edu.field ? ' · ' + edu.field : ''}`, {
+        x: MARGIN, y, size: 10, font: fonts.italic, color: mutedColor,
         maxWidth: A4_WIDTH - MARGIN * 2,
       });
-      y -= 20;
+      ctx.setY(y - 20);
     });
-    y -= 5;
+    ctx.setY(ctx.getY() - 5);
   }
 
   // PROJETOS
   if (projects.length > 0) {
     checkPage(60);
-    y = drawSectionTitle(page, 'PROJETOS', fontBold, accentColor, y);
-    projects.forEach((proj) => {
+    drawTitle('Projetos');
+    projects.forEach((proj: any) => {
       checkPage(50);
-      page.drawText(proj.name || 'Projeto', {
-        x: MARGIN, y, size: 11, font: fontBold, color: textColor,
-        maxWidth: A4_WIDTH - MARGIN * 2 - 100,
+      let y = ctx.getY();
+      ctx.getPage().drawText(proj.name || 'Projeto', {
+        x: MARGIN, y, size: 11, font: fonts.bold, color: textColor,
+        maxWidth: A4_WIDTH - MARGIN * 2 - 120,
       });
       if (proj.link) {
-        const linkWidth = fontRegular.widthOfTextAtSize(proj.link, 8);
-        page.drawText(proj.link, {
-          x: A4_WIDTH - MARGIN - linkWidth, y, size: 8, font: fontRegular, color: accentColor,
+        const linkWidth = fonts.regular.widthOfTextAtSize(proj.link, 8);
+        ctx.getPage().drawText(proj.link, {
+          x: A4_WIDTH - MARGIN - linkWidth, y, size: 8, font: fonts.regular, color: accentColor,
         });
       }
       y -= 14;
+      ctx.setY(y);
       if (proj.description?.trim()) {
-        const lines = wrapText(proj.description, 100);
-        lines.forEach((line) => {
-          checkPage(20);
-          page.drawText(line, { x: MARGIN, y, size: 9, font: fontRegular, color: textColor });
-          y -= 12;
+        wrapText(proj.description, 95).forEach((line) => {
+          checkPage(12);
+          const ly = ctx.getY();
+          ctx.getPage().drawText(line, { x: MARGIN, y: ly, size: 9, font: fonts.regular, color: textColor });
+          ctx.setY(ly - 12);
         });
       }
-      if (proj.technologies.length > 0) {
-        checkPage(20);
-        page.drawText(proj.technologies.join(' · '), {
-          x: MARGIN, y, size: 9, font: fontItalic, color: accentColor,
+      if (Array.isArray(proj.technologies) && proj.technologies.length > 0) {
+        checkPage(12);
+        const ly = ctx.getY();
+        ctx.getPage().drawText(proj.technologies.join(' · '), {
+          x: MARGIN, y: ly, size: 9, font: fonts.italic, color: accentColor,
           maxWidth: A4_WIDTH - MARGIN * 2,
         });
-        y -= 12;
+        ctx.setY(ly - 12);
       }
-      y -= 8;
+      ctx.setY(ctx.getY() - 8);
     });
-    y -= 5;
+    ctx.setY(ctx.getY() - 5);
   }
 
   // VOLUNTARIADO
   if (volunteering.length > 0) {
     checkPage(60);
-    y = drawSectionTitle(page, 'VOLUNTARIADO', fontBold, accentColor, y);
-    volunteering.forEach((vol) => {
-      checkPage(60);
-      page.drawText(vol.role || 'Voluntário', {
-        x: MARGIN, y, size: 11, font: fontBold, color: textColor,
-        maxWidth: A4_WIDTH - MARGIN * 2 - 100,
+    drawTitle('Voluntariado');
+    volunteering.forEach((vol: any) => {
+      checkPage(70);
+      let y = ctx.getY();
+      ctx.getPage().drawText(vol.role || 'Voluntário', {
+        x: MARGIN, y, size: 11, font: fonts.bold, color: textColor,
+        maxWidth: A4_WIDTH - MARGIN * 2 - 120,
       });
-      const dateStr = `${formatDate(vol.startDate)} — ${vol.current ? 'Presente' : formatDate(vol.endDate) || 'Presente'}`;
-      const dateWidth = fontRegular.widthOfTextAtSize(dateStr, 9);
-      page.drawText(dateStr, {
-        x: A4_WIDTH - MARGIN - dateWidth, y, size: 9, font: fontRegular, color: mutedColor,
-      });
+      const dateStr = formatDateRange(vol.startDate, vol.endDate, vol.current);
+      if (dateStr) {
+        const dateWidth = fonts.regular.widthOfTextAtSize(dateStr, 9);
+        ctx.getPage().drawText(dateStr, {
+          x: A4_WIDTH - MARGIN - dateWidth, y, size: 9, font: fonts.regular, color: mutedColor,
+        });
+      }
       y -= 14;
-      page.drawText(vol.organization || 'Organização', {
-        x: MARGIN, y, size: 10, font: fontItalic, color: mutedColor,
+      ctx.setY(y);
+      ctx.getPage().drawText(vol.organization || 'Organização', {
+        x: MARGIN, y, size: 10, font: fonts.italic, color: mutedColor,
         maxWidth: A4_WIDTH - MARGIN * 2,
       });
-      y -= 16;
+      ctx.setY(y - 16);
       if (vol.description?.trim()) {
-        const lines = wrapText(vol.description, 100);
-        lines.forEach((line) => {
-          checkPage(20);
-          page.drawText(line, { x: MARGIN, y, size: 9, font: fontRegular, color: textColor });
-          y -= 12;
+        wrapText(vol.description, 95).forEach((line) => {
+          checkPage(12);
+          const ly = ctx.getY();
+          ctx.getPage().drawText(line, { x: MARGIN, y: ly, size: 9, font: fonts.regular, color: textColor });
+          ctx.setY(ly - 12);
         });
       }
-      y -= 8;
+      ctx.setY(ctx.getY() - 8);
     });
-    y -= 5;
-  }
-
-  // CERTIFICAÇÕES
-  if (certifications.length > 0) {
-    checkPage(60);
-    y = drawSectionTitle(page, 'CERTIFICAÇÕES', fontBold, accentColor, y);
-    certifications.forEach((cert) => {
-      checkPage(40);
-      page.drawText(cert.name || 'Certificação', {
-        x: MARGIN, y, size: 10, font: fontBold, color: textColor,
-        maxWidth: A4_WIDTH - MARGIN * 2 - 80,
-      });
-      if (cert.date) {
-        const dateStr = formatDate(cert.date);
-        const dateWidth = fontRegular.widthOfTextAtSize(dateStr, 9);
-        page.drawText(dateStr, {
-          x: A4_WIDTH - MARGIN - dateWidth, y, size: 9, font: fontRegular, color: mutedColor,
-        });
-      }
-      y -= 14;
-      if (cert.issuer) {
-        page.drawText(cert.issuer, {
-          x: MARGIN, y, size: 9, font: fontItalic, color: mutedColor,
-        });
-        y -= 14;
-      }
-      y -= 4;
-    });
-    y -= 5;
-  }
-
-  // PRÉMIOS
-  if (awards.length > 0) {
-    checkPage(60);
-    y = drawSectionTitle(page, 'PRÉMIOS E RECONHECIMENTOS', fontBold, accentColor, y);
-    awards.forEach((award) => {
-      checkPage(50);
-      page.drawText(award.name || 'Prémio', {
-        x: MARGIN, y, size: 10, font: fontBold, color: textColor,
-        maxWidth: A4_WIDTH - MARGIN * 2 - 80,
-      });
-      if (award.date) {
-        const dateStr = formatDate(award.date);
-        const dateWidth = fontRegular.widthOfTextAtSize(dateStr, 9);
-        page.drawText(dateStr, {
-          x: A4_WIDTH - MARGIN - dateWidth, y, size: 9, font: fontRegular, color: mutedColor,
-        });
-      }
-      y -= 14;
-      if (award.issuer) {
-        page.drawText(award.issuer, {
-          x: MARGIN, y, size: 9, font: fontItalic, color: mutedColor,
-        });
-        y -= 14;
-      }
-      if (award.description?.trim()) {
-        const lines = wrapText(award.description, 100);
-        lines.forEach((line) => {
-          checkPage(20);
-          page.drawText(line, { x: MARGIN, y, size: 9, font: fontRegular, color: textColor });
-          y -= 12;
-        });
-      }
-      y -= 4;
-    });
-    y -= 5;
+    ctx.setY(ctx.getY() - 5);
   }
 
   // HABILIDADES + IDIOMAS
   if (skills.length > 0 || languages.length > 0) {
     checkPage(150);
-    const colY = y;
+    const colY = ctx.getY();
 
     if (skills.length > 0) {
-      const titleY = drawSectionTitleAtX(page, 'HABILIDADES', MARGIN, colY, fontBold, accentColor);
-      let skillY = titleY;
-      skills.forEach((skill) => {
-        page.drawText(skill.name || 'Habilidade', {
-          x: MARGIN, y: skillY, size: 10, font: fontRegular, color: textColor, maxWidth: 150,
+      ctx.getPage().drawText(titleUppercase ? 'HABILIDADES' : 'Competências', {
+        x: MARGIN, y: colY, size: 11, font: fonts.bold, color: accentColor,
+      });
+      ctx.getPage().drawLine({
+        start: { x: MARGIN, y: colY - 4 }, end: { x: MARGIN + 60, y: colY - 4 },
+        thickness: 0.5, color: accentColor,
+      });
+      let skillY = colY - 18;
+      skills.forEach((skill: any) => {
+        ctx.getPage().drawText(skill.name || 'Habilidade', {
+          x: MARGIN, y: skillY, size: 10, font: fonts.regular, color: textColor, maxWidth: 150,
         });
-        page.drawText(`${skill.level}/5`, {
-          x: 220, y: skillY, size: 9, font: fontBold, color: accentColor,
+        ctx.getPage().drawText(`${skill.level ?? ''}/5`, {
+          x: MARGIN + 180, y: skillY, size: 9, font: fonts.bold, color: accentColor,
         });
         skillY -= 16;
       });
     }
 
     if (languages.length > 0) {
-      const titleY = drawSectionTitleAtX(page, 'IDIOMAS', A4_WIDTH / 2 + 20, colY, fontBold, accentColor);
-      let langY = titleY;
-      languages.forEach((lang) => {
-        page.drawText(lang.name || 'Idioma', {
-          x: A4_WIDTH / 2 + 20, y: langY, size: 10, font: fontRegular, color: textColor,
+      const rightX = A4_WIDTH / 2 + 20;
+      ctx.getPage().drawText(titleUppercase ? 'IDIOMAS' : 'Idiomas', {
+        x: rightX, y: colY, size: 11, font: fonts.bold, color: accentColor,
+      });
+      ctx.getPage().drawLine({
+        start: { x: rightX, y: colY - 4 }, end: { x: rightX + 60, y: colY - 4 },
+        thickness: 0.5, color: accentColor,
+      });
+      let langY = colY - 18;
+      languages.forEach((lang: any) => {
+        ctx.getPage().drawText(lang.name || 'Idioma', {
+          x: rightX, y: langY, size: 10, font: fonts.regular, color: textColor,
         });
-        page.drawText(lang.level, {
-          x: A4_WIDTH / 2 + 20, y: langY - 12, size: 9, font: fontItalic, color: mutedColor,
+        ctx.getPage().drawText(lang.level || '', {
+          x: rightX, y: langY - 12, size: 9, font: fonts.italic, color: mutedColor,
         });
         langY -= 30;
       });
     }
 
-    const skillsHeight = skills.length * 16 + 24;
-    const languagesHeight = languages.length * 30 + 24;
-    y = colY - Math.max(skillsHeight, languagesHeight, 40) - 15;
+    const maxHeight = Math.max(skills.length * 16 + 24, languages.length * 30 + 24, 40);
+    ctx.setY(colY - maxHeight - 15);
+  }
+
+  // CERTIFICAÇÕES
+  if (certifications.length > 0) {
+    checkPage(60);
+    drawTitle('Certificações');
+    certifications.forEach((cert: any) => {
+      checkPage(40);
+      let y = ctx.getY();
+      ctx.getPage().drawText(cert.name || 'Certificação', {
+        x: MARGIN, y, size: 10, font: fonts.bold, color: textColor,
+        maxWidth: A4_WIDTH - MARGIN * 2 - 100,
+      });
+      if (cert.date) {
+        const dateStr = formatDate(cert.date);
+        const dateWidth = fonts.regular.widthOfTextAtSize(dateStr, 9);
+        ctx.getPage().drawText(dateStr, {
+          x: A4_WIDTH - MARGIN - dateWidth, y, size: 9, font: fonts.regular, color: mutedColor,
+        });
+      }
+      y -= 14;
+      if (cert.issuer) {
+        ctx.getPage().drawText(cert.issuer, {
+          x: MARGIN, y, size: 9, font: fonts.italic, color: mutedColor,
+        });
+        y -= 14;
+      }
+      ctx.setY(y - 4);
+    });
+    ctx.setY(ctx.getY() - 5);
+  }
+
+  // PRÉMIOS
+  if (awards.length > 0) {
+    checkPage(60);
+    drawTitle('Prémios e Reconhecimentos');
+    awards.forEach((award: any) => {
+      checkPage(50);
+      let y = ctx.getY();
+      ctx.getPage().drawText(award.name || 'Prémio', {
+        x: MARGIN, y, size: 10, font: fonts.bold, color: textColor,
+        maxWidth: A4_WIDTH - MARGIN * 2 - 100,
+      });
+      if (award.date) {
+        const dateStr = formatDate(award.date);
+        const dateWidth = fonts.regular.widthOfTextAtSize(dateStr, 9);
+        ctx.getPage().drawText(dateStr, {
+          x: A4_WIDTH - MARGIN - dateWidth, y, size: 9, font: fonts.regular, color: mutedColor,
+        });
+      }
+      y -= 14;
+      if (award.issuer) {
+        ctx.getPage().drawText(award.issuer, {
+          x: MARGIN, y, size: 9, font: fonts.italic, color: mutedColor,
+        });
+        y -= 14;
+      }
+      ctx.setY(y - 4);
+    });
+    ctx.setY(ctx.getY() - 5);
   }
 
   // INFORMAÇÕES ADICIONAIS
   if (personal.availability || personal.hasDrivingLicense || personal.hasCar) {
     checkPage(80);
-    y = drawSectionTitle(page, 'INFORMAÇÕES ADICIONAIS', fontBold, accentColor, y);
+    drawTitle('Informações Adicionais');
+    let y = ctx.getY();
 
     if (personal.availability) {
       const availText = personal.availability === 'Outro' ? personal.availabilityOther : personal.availability;
-      page.drawText(`Disponibilidade: ${availText}`, {
-        x: MARGIN, y, size: 10, font: fontRegular, color: textColor,
+      ctx.getPage().drawText(`Disponibilidade: ${availText}`, {
+        x: MARGIN, y, size: 10, font: fonts.regular, color: textColor,
       });
       y -= 14;
     }
-
     if (personal.hasDrivingLicense) {
       const licenseText = personal.drivingLicenseCategory
-        ? `- Carta de conducao (Categoria ${personal.drivingLicenseCategory})`
-        : '- Carta de conducao';
-      page.drawText(licenseText, {
-        x: MARGIN, y, size: 10, font: fontRegular, color: textColor,
+        ? `Carta de condução (Categoria ${personal.drivingLicenseCategory})`
+        : 'Carta de condução';
+      ctx.getPage().drawText(licenseText, {
+        x: MARGIN, y, size: 10, font: fonts.regular, color: textColor,
       });
       y -= 14;
     }
-
     if (personal.hasCar) {
-      page.drawText('- Carro proprio', {
-        x: MARGIN, y, size: 10, font: fontRegular, color: textColor,
+      ctx.getPage().drawText('Carro próprio', {
+        x: MARGIN, y, size: 10, font: fonts.regular, color: textColor,
       });
       y -= 14;
     }
-    y -= 8;
+    ctx.setY(y - 8);
   }
 
   // REFERÊNCIAS
   if (references.length > 0) {
     checkPage(60);
-    y = drawSectionTitle(page, 'REFERÊNCIAS', fontBold, accentColor, y);
-    references.forEach((ref) => {
+    drawTitle('Referências');
+    references.forEach((ref: any) => {
       checkPage(50);
-      page.drawText(ref.name || 'Referência', {
-        x: MARGIN, y, size: 10, font: fontBold, color: textColor,
+      let y = ctx.getY();
+      ctx.getPage().drawText(ref.name || 'Referência', {
+        x: MARGIN, y, size: 10, font: fonts.bold, color: textColor,
         maxWidth: A4_WIDTH - MARGIN * 2,
       });
       y -= 14;
       const posLine = `${ref.position || ''}${ref.company ? (ref.position ? ' · ' : '') + ref.company : ''}`;
       if (posLine.trim()) {
-        page.drawText(posLine, {
-          x: MARGIN, y, size: 9, font: fontItalic, color: mutedColor,
+        ctx.getPage().drawText(posLine, {
+          x: MARGIN, y, size: 9, font: fonts.italic, color: mutedColor,
           maxWidth: A4_WIDTH - MARGIN * 2,
         });
         y -= 14;
       }
       const contactLine = [ref.email, ref.phone].filter(Boolean).join('  ·  ');
       if (contactLine) {
-        page.drawText(contactLine, {
-          x: MARGIN, y, size: 9, font: fontRegular, color: textColor,
+        ctx.getPage().drawText(contactLine, {
+          x: MARGIN, y, size: 9, font: fonts.regular, color: textColor,
           maxWidth: A4_WIDTH - MARGIN * 2,
         });
         y -= 14;
       }
-      y -= 4;
+      ctx.setY(y - 4);
     });
-    y -= 5;
+    ctx.setY(ctx.getY() - 5);
   }
 
-  // HOBBIES
-  const validHobbies = hobbies.filter((h) => h.name.trim());
+  // HOBBIES (sem duplicados)
+  const validHobbies = Array.from(
+    new Map(
+      hobbies
+        .filter((h: any) => h && typeof h.name === 'string' && h.name.trim())
+        .map((h: any) => [h.name.trim().toLowerCase(), h])
+    ).values()
+  );
   if (validHobbies.length > 0) {
     checkPage(60);
-    y = drawSectionTitle(page, 'HOBBIES E INTERESSES', fontBold, accentColor, y);
-    const hobbyText = validHobbies.map((h) => h.name).join('  ·  ');
-    const lines = wrapText(hobbyText, 95);
-    lines.forEach((line) => {
-      checkPage(20);
-      page.drawText(line, { x: MARGIN, y, size: 10, font: fontRegular, color: textColor });
-      y -= 14;
+    drawTitle('Hobbies e Interesses');
+    const hobbyText = validHobbies.map((h: any) => h.name).join('  ·  ');
+    wrapText(hobbyText, 90).forEach((line) => {
+      checkPage(14);
+      const ly = ctx.getY();
+      ctx.getPage().drawText(line, { x: MARGIN, y: ly, size: 10, font: fonts.regular, color: textColor });
+      ctx.setY(ly - 14);
     });
   }
-
-  // DOWNLOAD
-  const pdfBytes = await pdfDoc.save();
-  const blob = new Blob([pdfBytes as unknown as BlobPart], { type: 'application/pdf' });
-  const url = URL.createObjectURL(blob);
-
-  const safeName =
-    (personal.fullName || 'curriculo')
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '') || 'curriculo';
-
-  const link = document.createElement('a');
-  link.download = `cv-${safeName}.pdf`;
-  link.href = url;
-  link.click();
-
-  URL.revokeObjectURL(url);
 }
 
+// ============================================
 // HELPERS
-function drawSectionTitle(page: any, title: string, font: any, color: any, y: number): number {
-  page.drawText(title, { x: MARGIN, y, size: 11, font, color });
-  page.drawLine({
-    start: { x: MARGIN, y: y - 4 },
-    end: { x: A4_WIDTH - MARGIN, y: y - 4 },
-    thickness: 0.5,
-    color,
-  });
-  return y - 22;
-}
-
-function drawSectionTitleAtX(page: any, title: string, x: number, y: number, font: any, color: any): number {
-  page.drawText(title, { x, y, size: 11, font, color });
-  page.drawLine({
-    start: { x, y: y - 4 },
-    end: { x: A4_WIDTH - MARGIN, y: y - 4 },
-    thickness: 0.5,
-    color,
-  });
-  return y - 22;
-}
+// ============================================
 
 function formatDate(dateStr: string): string {
   if (!dateStr) return '';
-  const parts = dateStr.split('-');
+  const parts = String(dateStr).split('-');
   if (parts.length < 2) return dateStr;
   const [year, month] = parts;
   const monthIdx = parseInt(month) - 1;
@@ -521,9 +751,18 @@ function formatDate(dateStr: string): string {
   return `${months[monthIdx]} ${year}`;
 }
 
+function formatDateRange(start?: string, end?: string, current?: boolean): string {
+  const s = formatDate(start || '');
+  const e = current ? 'Presente' : formatDate(end || '');
+  if (s && e) return `${s} — ${e}`;
+  if (s) return `${s} — Presente`;
+  if (e) return e;
+  return '';
+}
+
 function wrapText(text: string, maxChars: number): string[] {
   const lines: string[] = [];
-  const paragraphs = text.split('\n');
+  const paragraphs = String(text).split('\n');
   paragraphs.forEach((paragraph) => {
     if (!paragraph.trim()) {
       lines.push('');
