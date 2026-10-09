@@ -13,7 +13,7 @@ import { VolunteeringSection } from './sections/VolunteeringSection';
 import { AwardsSection } from './sections/AwardsSection';
 import { ColorPicker } from './ColorPicker';
 import { TemplateSelector } from './TemplateThumbnails';
-
+import { analytics } from '../utils/analytics';
 
 export function CVForm() {
   const { step, setStep, template, setTemplate, data, setData } = useCVStore();
@@ -39,7 +39,13 @@ export function CVForm() {
       {/* SELETOR DE TEMPLATE — Miniaturas visuais */}
       <div className="template-selector">
         <span className="template-label">🎨 Template:</span>
-        <TemplateSelector value={template} onChange={(t) => setTemplate(t)} />
+     <TemplateSelector
+  value={template}
+  onChange={(t) => {
+    setTemplate(t);
+    analytics.templateChanged(t);
+  }}
+/>
       </div>
 
       {/* IMPORTAR CV */}

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useCVStore } from '../store/cvStore';
 import { exportCVAsPDF } from '../utils/exportCV';
 import { validateCV } from '../utils/validation';
-
+import { analytics } from '../utils/analytics';
 
 export function DownloadButtons() {
   const { data, template, reset } = useCVStore();
@@ -20,6 +20,14 @@ export function DownloadButtons() {
     setIsDownloading(true);
     try {
       await exportCVAsPDF(data, template);
+
+      // 👇 Analytics — PDF gerado
+      const fieldsCount =
+        Object.values(data.personal).filter(Boolean).length +
+        data.experience.length +
+        data.education.length +
+        data.skills.length;
+      analytics.pdfGenerated(template, fieldsCount);
     } catch (error) {
       console.error('Erro ao gerar PDF:', error);
       alert('Erro ao gerar o PDF. Tenta novamente.');
@@ -36,6 +44,7 @@ export function DownloadButtons() {
     ) {
       reset();
       setErrors([]);
+      analytics.draftCleared(); // 👈 Analytics
     }
   };
 

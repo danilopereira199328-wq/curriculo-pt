@@ -35,7 +35,7 @@ const COMMON_SKILLS = [
   // Marketing
   'SEO', 'SEM', 'Google Ads', 'Facebook Ads', 'Email Marketing', 'Copywriting',
   // Outros
-  'Office', 'Microsoft Office', 'AutoCAD', 'SAP', 'CRM', 'ERP',
+ 'Microsoft Office', 'AutoCAD', 'SAP', 'CRM', 'ERP',
 ];
 
 // Idiomas

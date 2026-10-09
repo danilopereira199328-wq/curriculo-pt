@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useCVStore } from '../store/cvStore';
 import { extractTextFromFile } from '../utils/importCV';
 import { parseCVText } from '../utils/parseCVText';
+import { analytics } from '../utils/analytics';
 
 interface ImportFeedback {
   detected: string[];
@@ -36,6 +37,9 @@ export function ImportCV() {
       });
 
       setFeedback({ detected, warnings });
+
+      // 👇 Analytics — CV importado
+      analytics.cvImported(detected.length, warnings.length);
     } catch (err: any) {
       setError(err.message || 'Erro ao importar. Tenta outro ficheiro.');
     } finally {
@@ -99,7 +103,13 @@ export function ImportCV() {
             fontSize: '13px',
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              marginBottom: '8px',
+            }}
+          >
             <strong style={{ color: '#065f46' }}>✅ Importação concluída</strong>
             <button
               onClick={closeFeedback}
