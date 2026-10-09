@@ -12,7 +12,7 @@ import { VolunteeringSection } from './sections/VolunteeringSection';
 import { AwardsSection } from './sections/AwardsSection';
 import { ColorPicker } from './ColorPicker';
 import { TemplateSelector } from './TemplateThumbnails';
-import type { TemplateType } from '../types/cv';
+
 
 export function CVForm() {
   const { step, setStep, template, setTemplate, data, setData } = useCVStore();
