@@ -44,10 +44,30 @@ body {
 
 .app-main {
   flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+  height: calc(100vh - 100px);
+  padding: 0;
+  max-width: none;
+}
+
+.app-sidebar {
+  background: white;
+  overflow-y: auto;
+  border-right: 1px solid #e5e5e7;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-preview {
+  background: #e5e5e7;
+  overflow: auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
   padding: 24px;
-  max-width: 900px;
-  margin: 0 auto;
-  width: 100%;
+  padding-top: 24px;
 }
 
 /* ============================================
@@ -56,33 +76,51 @@ body {
 
 .cv-form {
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   overflow: hidden;
 }
 
-/* NAVEGAÇÃO ENTRE SECÇÕES */
+/* NAVEGAÇÃO ENTRE SECÇÕES — corrigido com scroll horizontal */
 .steps-nav {
   display: flex;
+  flex-wrap: nowrap;
+  gap: 4px;
   overflow-x: auto;
-  border-bottom: 2px solid #f0f0f2;
+  overflow-y: hidden;
+  padding: 8px 12px;
   background: #fafafa;
+  border-bottom: 2px solid #f0f0f2;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.steps-nav::-webkit-scrollbar {
+  height: 6px;
+}
+
+.steps-nav::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.steps-nav::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .step-btn {
-  flex: 1;
-  padding: 16px 12px;
-  border: none;
-  background: transparent;
+  flex: 0 0 auto;
+  min-width: max-content;
+  padding: 10px 14px;
+  border: 1px solid #e5e5e7;
+  background: white;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: #666;
-  transition: all 0.2s;
-  border-bottom: 3px solid transparent;
   font-family: inherit;
   white-space: nowrap;
-  min-width: 100px;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
 .step-btn:hover {
@@ -91,9 +129,16 @@ body {
 }
 
 .step-btn.active {
-  color: #0071e3;
-  border-bottom-color: #0071e3;
-  background: white;
+  background: #0071e3;
+  color: white;
+  border-color: #0071e3;
+}
+
+@media (max-width: 768px) {
+  .step-btn {
+    font-size: 11px;
+    padding: 8px 10px;
+  }
 }
 
 /* CONTEÚDO DA SECÇÃO */
@@ -190,7 +235,7 @@ body {
 }
 
 /* ============================================
-   CARDS DINÂMICOS (Experiência/Educação)
+   CARDS DINÂMICOS
    ============================================ */
 
 .dynamic-card {
@@ -453,7 +498,7 @@ body {
 }
 
 /* ============================================
-   NAVEGAÇÃO
+   NAVEGAÇÃO ENTRE PASSOS
    ============================================ */
 
 .step-navigation {
@@ -495,75 +540,6 @@ body {
 }
 
 /* ============================================
-   RESPONSIVO
-   ============================================ */
-
-@media (max-width: 768px) {
-  .app-main {
-    padding: 12px;
-  }
-
-  .step-content {
-    padding: 20px;
-  }
-
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .skill-item,
-  .language-item {
-    grid-template-columns: 1fr;
-  }
-
-  .step-btn {
-    font-size: 11px;
-    padding: 12px 8px;
-    min-width: 80px;
-  }
-}
-
-/* ============================================
-   LAYOUT COM PREVIEW
-   ============================================ */
-
-.app-main {
-  flex: 1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  overflow: hidden;
-  height: calc(100vh - 100px);
-  padding: 0;
-  max-width: none;
-}
-
-.app-sidebar {
-  background: white;
-  overflow-y: auto;
-  border-right: 1px solid #e5e5e7;
-  display: flex;
-  flex-direction: column;
-}
-
-.app-preview {
-  background: #e5e5e7;
-  overflow: auto;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 24px;
-  padding-top: 24px;
-}
-
-.cv-preview-scaler {
-  width: 794px;
-  height: 1123px;
-  transform: scale(0.55);
-  transform-origin: top center;
-  margin-top: -40px;
-}
-
-/* ============================================
    PREVIEW DO CV
    ============================================ */
 
@@ -574,7 +550,7 @@ body {
 }
 
 .cv-preview-scaler {
-  width: 794px; /* A4 a 96 DPI */
+  width: 794px;
   height: 1123px;
   transform: scale(0.6);
   transform-origin: top center;
@@ -857,6 +833,39 @@ body {
   color: #999;
 }
 
+.cv-objective {
+  padding: 20px 40px 0;
+}
+
+.cv-objective p {
+  font-size: 11px;
+  line-height: 1.6;
+  color: #4a4a4f;
+  margin: 0;
+}
+
+.cv-info-item {
+  font-size: 10px;
+  color: #1a1a1f;
+  line-height: 1.7;
+  margin-bottom: 2px;
+}
+
+.cv-hobbies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.cv-hobby-tag {
+  font-size: 9px;
+  padding: 3px 8px;
+  background: #f0f0f2;
+  color: #4a4a4f;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
 /* ============================================
    BOTÃO DE DOWNLOAD PDF
    ============================================ */
@@ -894,31 +903,17 @@ body {
   box-shadow: none;
 }
 
-/* ============================================
-   RESPONSIVO
-   ============================================ */
-
-@media (max-width: 1024px) {
-  .app-main {
-    grid-template-columns: 1fr;
-    height: auto;
-    overflow: auto;
-  }
-
-  .app-sidebar {
-    border-right: none;
-    border-bottom: 1px solid #e5e5e7;
-  }
-
-  .cv-preview-scaler {
-    transform: scale(0.5);
-  }
+.download-template-info {
+  font-size: 11px;
+  color: #888;
+  text-align: center;
+  margin-top: 8px;
+  font-style: italic;
 }
 
-@media (max-width: 768px) {
-  .cv-preview-scaler {
-    transform: scale(0.4);
-  }
+.download-template-info strong {
+  color: #1d1d1f;
+  font-weight: 600;
 }
 
 /* ============================================
@@ -999,29 +994,6 @@ body {
 .tech-tag-remove:hover {
   opacity: 1;
   color: #e53935;
-}
-
-/* ============================================
-   AJUSTE DAS ABAS (7 agora)
-   ============================================ */
-
-.steps-nav {
-  overflow-x: auto;
-  scrollbar-width: thin;
-}
-
-.step-btn {
-  min-width: 90px;
-  font-size: 12px;
-  padding: 14px 8px;
-}
-
-@media (max-width: 1024px) {
-  .step-btn {
-    min-width: 80px;
-    font-size: 11px;
-    padding: 12px 6px;
-  }
 }
 
 /* ============================================
@@ -1187,7 +1159,7 @@ body {
 }
 
 /* ============================================
-   SELECT (Disponibilidade)
+   SELECT
    ============================================ */
 
 .form-field select {
@@ -1205,53 +1177,6 @@ body {
   outline: none;
   border-color: #0071e3;
   box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.1);
-}
-
-/* ============================================
-   AJUSTE DAS ABAS (8 agora)
-   ============================================ */
-
-.step-btn {
-  min-width: 85px;
-  font-size: 11px;
-  padding: 12px 6px;
-}
-
-/* ============================================
-   TEMPLATE: OBJETIVO, INFO, HOBBIES
-   ============================================ */
-
-.cv-objective {
-  padding: 20px 40px 0;
-}
-
-.cv-objective p {
-  font-size: 11px;
-  line-height: 1.6;
-  color: #4a4a4f;
-  margin: 0;
-}
-
-.cv-info-item {
-  font-size: 10px;
-  color: #1a1a1f;
-  line-height: 1.7;
-  margin-bottom: 2px;
-}
-
-.cv-hobbies {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-}
-
-.cv-hobby-tag {
-  font-size: 9px;
-  padding: 3px 8px;
-  background: #f0f0f2;
-  color: #4a4a4f;
-  border-radius: 10px;
-  font-weight: 500;
 }
 
 /* ============================================
@@ -1276,34 +1201,12 @@ body {
   white-space: nowrap;
 }
 
-.template-buttons {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.template-btn {
-  padding: 6px 14px;
-  border: 1px solid #e5e5e7;
-  background: white;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
-  color: #1d1d1f;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-family: inherit;
-}
-
-.template-btn:hover {
-  border-color: #0071e3;
-  color: #0071e3;
-}
-
-.template-btn.active {
-  background: #0071e3;
-  color: white;
-  border-color: #0071e3;
+@media (max-width: 768px) {
+  .template-selector {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
 }
 
 /* ============================================
@@ -1588,27 +1491,45 @@ body {
 }
 
 /* ============================================
-   RESPONSIVO PARA O SELETOR
+   RESPONSIVO
    ============================================ */
 
-@media (max-width: 768px) {
-  .template-selector {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+@media (max-width: 1024px) {
+  .app-main {
+    grid-template-columns: 1fr;
+    height: auto;
+    overflow: auto;
+  }
+
+  .app-sidebar {
+    border-right: none;
+    border-bottom: 1px solid #e5e5e7;
+  }
+
+  .cv-preview-scaler {
+    transform: scale(0.5);
   }
 }
 
-/* Info do template no botão de download */
-.download-template-info {
-  font-size: 11px;
-  color: #888;
-  text-align: center;
-  margin-top: 8px;
-  font-style: italic;
-}
+@media (max-width: 768px) {
+  .app-main {
+    padding: 0;
+  }
 
-.download-template-info strong {
-  color: #1d1d1f;
-  font-weight: 600;
+  .step-content {
+    padding: 20px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .skill-item,
+  .language-item {
+    grid-template-columns: 1fr;
+  }
+
+  .cv-preview-scaler {
+    transform: scale(0.4);
+  }
 }
