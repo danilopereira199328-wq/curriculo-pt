@@ -1,3 +1,4 @@
+import { ImportCV } from './ImportCV';
 import { useCVStore } from '../store/cvStore';
 import { PersonalSection } from './sections/PersonalSection';
 import { ExperienceSection } from './sections/ExperienceSection';
@@ -40,6 +41,11 @@ export function CVForm() {
         <span className="template-label">🎨 Template:</span>
         <TemplateSelector value={template} onChange={(t) => setTemplate(t)} />
       </div>
+
+      {/* IMPORTAR CV */}
+<div style={{ padding: '0 20px', marginTop: '12px' }}>
+  <ImportCV />
+</div>
 
       {/* COR DE DESTAQUE */}
       <div className="mt-4 max-w-md">

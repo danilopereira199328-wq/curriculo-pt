@@ -3,6 +3,7 @@ import { useCVStore } from '../store/cvStore';
 import { exportCVAsPDF } from '../utils/exportCV';
 import { validateCV } from '../utils/validation';
 
+
 export function DownloadButtons() {
   const { data, template, reset } = useCVStore();
   const [isDownloading, setIsDownloading] = useState(false);
