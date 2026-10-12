@@ -1,5 +1,18 @@
 import { useCVStore } from '../../store/cvStore';
 
+const sugestoesCargos = [
+  "Técnico Especialista em Sistemas de Informação",
+  "Operador de Armazém e Logística",
+  "Assistente Administrativo / Atendimento",
+  "Desenvolvedor Web Júnior"
+];
+
+const sugestoesResumos = {
+  tecnologia: "Profissional motivado na área de Tecnologias e Programação de Sistemas de Informação. Forte capacidade analítica, resolução de problemas e vontade constante de evoluir no desenvolvimento web e de software.",
+  logistica: "Profissional dinâmico e rigoroso na gestão de stocks, cargas e descargas. Experiência em ambiente de armazém, cumprimento de prazos e rigorosas normas de segurança.",
+  administrativo: "Perfil organizado com forte capacidade de comunicação, gestão de arquivos e suporte administrativo. Focado na eficiência, pontualidade e excelência no atendimento."
+};
+
 export function PersonalSection() {
   const { data, updatePersonal } = useCVStore();
   const { personal } = data;
@@ -32,8 +45,23 @@ export function PersonalSection() {
           />
         </div>
 
+        {/* CARGO COM SUGESTÕES RÁPIDAS */}
         <div className="form-field">
-          <label>Cargo / Título Profissional *</label>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <label>Cargo / Título Profissional *</label>
+            <select 
+              onChange={(e) => {
+                if (e.target.value) updatePersonal('jobTitle', e.target.value);
+              }}
+              defaultValue=""
+              style={{ fontSize: "11px", padding: "2px 6px", borderRadius: "4px", border: "1px solid #d2d2d7", background: "#f0f7ff", color: "#0071e3", cursor: "pointer" }}
+            >
+              <option value="" disabled>💡 Sugestões...</option>
+              {sugestoesCargos.map((cargoOpt, index) => (
+                <option key={index} value={cargoOpt}>{cargoOpt}</option>
+              ))}
+            </select>
+          </div>
           <input
             type="text"
             value={personal.jobTitle}
@@ -118,9 +146,34 @@ export function PersonalSection() {
         </small>
       </div>
 
-      {/* RESUMO */}
+      {/* RESUMO COM BOTÕES DE AJUDA RÁPIDA */}
       <div className="form-field full-width">
-        <label>Resumo Profissional</label>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+          <label style={{ margin: 0 }}>Resumo Profissional</label>
+          <div style={{ display: "flex", gap: "6px" }}>
+            <button 
+              type="button"
+              onClick={() => updatePersonal('summary', sugestoesResumos.tecnologia)}
+              style={{ fontSize: "11px", padding: "2px 6px", background: "#f0f7ff", border: "1px solid #0071e3", color: "#0071e3", borderRadius: "4px", cursor: "pointer" }}
+            >
+              + Tecnologia
+            </button>
+            <button 
+              type="button"
+              onClick={() => updatePersonal('summary', sugestoesResumos.logistica)}
+              style={{ fontSize: "11px", padding: "2px 6px", background: "#f0f7ff", border: "1px solid #0071e3", color: "#0071e3", borderRadius: "4px", cursor: "pointer" }}
+            >
+              + Logística
+            </button>
+            <button 
+              type="button"
+              onClick={() => updatePersonal('summary', sugestoesResumos.administrativo)}
+              style={{ fontSize: "11px", padding: "2px 6px", background: "#f0f7ff", border: "1px solid #0071e3", color: "#0071e3", borderRadius: "4px", cursor: "pointer" }}
+            >
+              + Administrativo
+            </button>
+          </div>
+        </div>
         <textarea
           value={personal.summary}
           onChange={(e) => updatePersonal('summary', e.target.value)}
@@ -186,7 +239,6 @@ export function PersonalSection() {
           </label>
         </div>
 
-        {/* CATEGORIA DA CARTA (só aparece se tiver carta) */}
         {personal.hasDrivingLicense && (
           <div className="form-field" style={{ marginTop: '12px' }}>
             <label>Categoria da Carta</label>
